@@ -1,0 +1,25 @@
+{
+  "name": "ielm",
+  "version": "0.1.0",
+  "description": "Interactive Elm",
+  "main": "index.js",
+  "dependencies": {
+    "elm-webpack-loader": "^4.3.1",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.9.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shamansir/ielm.git"
+  },
+  "author": "Ulric Wilfred <shaman.sir@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shamansir/ielm/issues"
+  },
+  "homepage": "https://github.com/shamansir/ielm#readme"
+}
