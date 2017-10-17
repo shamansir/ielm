@@ -1,8 +1,7 @@
 module.exports = {
     entry: {
-      app: [
-        './index.js'
-      ]
+      'whatwg-fetch': 'whatwg-fetch',
+      'app': './index.js'
     },
 
     output: {
