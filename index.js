@@ -6,7 +6,7 @@ require('./index.css');
 
 require('whatwg-fetch');
 
-var unique = require('unique').immutable;
+var unique = require('array-unique').immutable;
 var Counter = require('./Counter.elm');
 var mountNode = document.getElementById('elm-app');
 var CodeMirror = require('codemirror');
@@ -21,10 +21,27 @@ var elmDocument = {
 
 var codemirrorOptions = {
     value: "foo = \"bar\"",
-    mode:  "elm",
+    mode: "elm",
     lineNumbers: true,
     autofocus: true
 };
+
+function compile() {
+    fetch('http://localhost:3000/compile', {
+        method: "POST",
+        body: JSON.stringify({ outcoming: "outcoming" }),
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "same-origin"
+    }).then(function(response) {
+        return response.json()
+    }).then(function(json) {
+        console.log('parsed json', json)
+    }).catch(function(ex) {
+        console.log('parsing failed', ex)
+    });
+}
 
 function onInstanceUpdate(instanceId) {
     return function(cm) {
@@ -37,6 +54,7 @@ function onInstanceUpdate(instanceId) {
                 elmDocument.chunks[instanceId].push(handle.text);
             }
         });
+        compile();
         //console.log(elmDocument);
     }
 }
@@ -60,12 +78,3 @@ function addInstance(target) {
 
 // The third value on embed are the initial values for incomming ports into Elm
 //var app = Counter.Main.embed(mountNode);
-
-fetch('http://localhost:3000')
-    .then(function(response) {
-        return response.json()
-    }).then(function(json) {
-        console.log('parsed json', json)
-    }).catch(function(ex) {
-        console.log('parsing failed', ex)
-    })
