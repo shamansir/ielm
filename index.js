@@ -1,12 +1,19 @@
 'use strict';
 
-var Elm = require('./Counter.elm');
-var mountNode = document.getElementById('elm-app');
-
-// The third value on embed are the initial values for incomming ports into Elm
-var app = Elm.Main.embed(mountNode);
+require('codemirror/lib/codemirror.css');
+require('codemirror/theme/monokai.css');
 
 require('whatwg-fetch');
+
+var Counter = require('./Counter.elm');
+var mountNode = document.getElementById('elm-app');
+var Codemirror = require('codemirror');
+require('codemirror/mode/elm/elm');
+
+console.log(Codemirror);
+
+// The third value on embed are the initial values for incomming ports into Elm
+var app = Counter.Main.embed(mountNode);
 
 fetch('http://localhost:3000')
     .then(function(response) {
