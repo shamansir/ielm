@@ -4,6 +4,7 @@
   "description": "Interactive Elm",
   "main": "index.js",
   "dependencies": {
+    "array-unique": "^0.3.2",
     "codemirror": "^5.31.0",
     "exit-hook": "^1.1.1",
     "node-elm-repl": "^3.3.1",
