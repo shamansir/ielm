@@ -26,10 +26,16 @@ const codemirrorOptions = {
     autofocus: true
 };
 
-function compile() {
+function elmDocumentToFileContent(elmDoc) {
+    return elmDoc.imports.map((importBody) => 'import ' + importBody)
+        .concat(elmDoc.chunks.map((lines, index) => lines.join('\n')))
+        .join('\n');
+}
+
+function compile(elmFileContent) {
     fetch('http://localhost:3000/compile', {
         method: "POST",
-        body: JSON.stringify({ outcoming: "outcoming" }),
+        body: JSON.stringify({ outcoming: elmFileContent }),
         headers: {
             "Content-Type": "application/json"
         },
@@ -48,12 +54,12 @@ function onInstanceUpdate(cm, instanceId) {
     cm.eachLine(function(handle) {
         if (handle.text.indexOf(':import ') == 0) {
             // FIXME: only if this import is known library
-            elmDocument.imports = unique(elmDocument.imports.concat([ handle.text ]));
-        } else if (handle.text.indexOf('import ') == 0) {
+            elmDocument.imports = unique(elmDocument.imports.concat([ handle.text.slice(8) ]));
+        } else if (handle.text.indexOf('import ') < 0) {
             elmDocument.chunks[instanceId].push(handle.text);
         }
     });
-    compile(elmDocument);
+    compile(elmDocumentToFileContent(elmDocument));
     //console.log(elmDocument);
 }
 
