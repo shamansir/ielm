@@ -1,5 +1,7 @@
 const exitHook = require('exit-hook')
 
+const ElmRepl = require('node-elm-repl');
+
 const http = require('http')
 const port = 3000
 

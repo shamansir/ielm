@@ -6,20 +6,20 @@ require('./index.css');
 
 require('whatwg-fetch');
 
-var unique = require('array-unique').immutable;
-var Counter = require('./Counter.elm');
-var mountNode = document.getElementById('elm-app');
-var CodeMirror = require('codemirror');
+const unique = require('array-unique').immutable;
+const Counter = require('./Counter.elm');
+const mountNode = document.getElementById('elm-app');
+const CodeMirror = require('codemirror');
 require('codemirror/mode/elm/elm');
 
-var instanceCount = 0;
+let instanceCount = 0;
 
-var elmDocument = {
+const elmDocument = {
     imports: [],
     chunks: [] // array of arrays: CodeMirror instances to lines
 };
 
-var codemirrorOptions = {
+const codemirrorOptions = {
     value: "foo = \"bar\"",
     mode: "elm",
     lineNumbers: true,
@@ -43,31 +43,35 @@ function compile() {
     });
 }
 
-function onInstanceUpdate(instanceId) {
-    return function(cm) {
-        elmDocument.chunks[instanceId] = [];
-        cm.eachLine(function(handle) {
-            if (handle.text.indexOf('import ') == 0) {
-                // FIXME: only if this import is known library
-                // elmDocument.imports = unique(elmDocument.imports.concat([ handle.text ]));
-            } else {
-                elmDocument.chunks[instanceId].push(handle.text);
-            }
-        });
-        compile();
-        //console.log(elmDocument);
-    }
+function onInstanceUpdate(cm, instanceId) {
+    elmDocument.chunks[instanceId] = [];
+    cm.eachLine(function(handle) {
+        if (handle.text.indexOf(':import ') == 0) {
+            // FIXME: only if this import is known library
+            elmDocument.imports = unique(elmDocument.imports.concat([ handle.text ]));
+        } else if (handle.text.indexOf('import ') == 0) {
+            elmDocument.chunks[instanceId].push(handle.text);
+        }
+    });
+    compile(elmDocument);
+    //console.log(elmDocument);
 }
 
 function addInstance(target) {
-    var instanceId = instanceCount;
-    var codemirrorWrapper = document.createElement('div');
-    var previewInstance = document.createElement('div');
+    const instanceId = instanceCount;
+    const codemirrorWrapper = document.createElement('div');
+    const previewInstance = document.createElement('div');
     target.appendChild(codemirrorWrapper);
     target.appendChild(previewInstance);
-    var codemirrorInstance = CodeMirror(codemirrorWrapper, codemirrorOptions);
+    const codemirrorInstance = CodeMirror(codemirrorWrapper, codemirrorOptions);
 
-    codemirrorInstance.on('change', onInstanceUpdate(instanceId));
+    codemirrorInstance.on('keypress', (cm, event) => {
+        if (event.keyCode == 13 && event.shiftKey) {
+            onInstanceUpdate(cm, instanceId);
+            event.stopPropagation();
+            event.preventDefault();
+        }
+    });
 
     instanceCount++;
 }

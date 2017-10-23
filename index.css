@@ -1,7 +1,12 @@
 .CodeMirror {
     border: 1px solid #ccc;
-    width: 90%;
-    height: 2em;
-    padding: 10px 5px;
+    /* width: 90%;
+    height: auto; */
+    /* padding: 10px 5px; */
     margin: 5px;
+    height: auto;
+}
+
+.CodeMirror-scroll {
+    height: auto;
 }
