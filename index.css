@@ -10,3 +10,17 @@
 .CodeMirror-scroll {
     height: auto;
 }
+
+.preview {
+    margin: 5px;
+    border: 1px solid #ccc;
+}
+
+.preview code {
+    color: brown;
+}
+
+.preview span {
+    padding: 5px;
+    font-family: sans-serif;
+}

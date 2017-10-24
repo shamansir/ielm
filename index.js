@@ -27,6 +27,8 @@ const codemirrorOptions = {
     autofocus: true
 };
 
+const previews = []; // Cell ID to Preview Element
+
 function elmDocumentToFileContent(elmDoc) {
     return elmDoc.imports.map((importBody) => 'import ' + importBody)
         .concat(elmDoc.chunks.map((lines, index) => lines.join('\n')))
@@ -34,7 +36,7 @@ function elmDocumentToFileContent(elmDoc) {
 }
 
 function compile(elmFileContent) {
-    fetch('http://localhost:3000/compile', {
+    return fetch('http://localhost:3000/compile', {
         method: "POST",
         body: JSON.stringify({
             user: "user",
@@ -49,10 +51,6 @@ function compile(elmFileContent) {
         credentials: "same-origin"
     }).then(function(response) {
         return response.json()
-    }).then(function(json) {
-        console.log('parsed json', json)
-    }).catch(function(ex) {
-        console.log('parsing failed', ex)
     });
 }
 
@@ -81,7 +79,12 @@ function onCellUpdate(cm, instanceId) {
             elmDocument.chunks[instanceId].push(handle.text);
         }
     });
-    compile(elmDocumentToFileContent(elmDocument));
+    compile(elmDocumentToFileContent(elmDocument)).then(function(json) {
+        renderResponse(previews[instanceId], json);
+        console.log('parsed json', json);
+    }).catch(function(ex) {
+        console.log('parsing failed', ex);
+    });
     //console.log(elmDocument);
 }
 
@@ -89,8 +92,10 @@ function addCell(target) {
     const cellId = cellCount;
     const codemirrorWrapper = document.createElement('div');
     const previewInstance = document.createElement('div');
+    previewInstance.className = 'preview';
     target.appendChild(codemirrorWrapper);
     target.appendChild(previewInstance);
+    previews.push(previewInstance);
     const codemirrorInstance = CodeMirror(codemirrorWrapper, codemirrorOptions);
 
     codemirrorInstance.on('keypress', (cm, event) => {
@@ -102,6 +107,25 @@ function addCell(target) {
     });
 
     cellCount++;
+}
+
+function renderResponse(previewTarget, json) {
+    previewTarget.innerHTML = '';
+    if (!json.error) {
+        const typeElms = json.types.map((type) => type.name)
+            .map((typeName) => {
+                const typeElm = document.createElement('span');
+                typeElm.innerText = typeElm.textContent = typeName;
+                return typeElm;
+            });
+        for (const typeElmIndex in typeElms) {
+            previewTarget.appendChild(typeElms[typeElmIndex]);
+        }
+    } else {
+        const codeElm = document.createElement('code');
+        codeElm.innerText = json.error;
+        previewTarget.appendChild(codeElm);
+    }
 }
 
 //document.addEventListener('DOMContentLoaded', function() {
