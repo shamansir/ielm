@@ -8,11 +8,18 @@ const port = 3000;
 const fs = require('fs');
 const cp = require('child_process');
 
-const compile = (elmLines, moduleName) => {
-  return new ElmRepl({
-    elmVer: '0.18.0',
-    workDir: '.'
-  }).parseLines(elmLines, moduleName)
+const compile = (config, elmLines, moduleName) => {
+  return new ElmRepl(config).parseLines(elmLines, moduleName)
+}
+
+const adaptConfig = (bodyJson) => {
+  return {
+    elmVer: bodyJson.elmVer || "0.18.0",
+    user: bodyJson.user || "user",
+    package: bodyJson.package || "project",
+    packageVer: bodyJson.packageVer || "1.0.0",
+    workDir: bodyJson.workDir || "./build",
+  }
 }
 
 const requestHandler = (request, response) => {
@@ -31,19 +38,25 @@ const requestHandler = (request, response) => {
     const bodyStr = Buffer.concat(requestBody).toString();
 
     if (request.url == '/compile') {
+      try {
 
-      // compile Elm Lines
-      const elmLines = bodyStr.split('\n');
-      if (elmLines && elmLines.length) {
-        compile(elmLines, 'Test').then((parsedModule) => {
-          response.end(JSON.stringify(parsedModule));
-        }).catch((err) => {
-          response.end(JSON.stringify({ error: err.message }));
-        });
-      } else {
-        response.end(JSON.stringify({ error: "Empty Body" }));
+        // compile Elm Lines
+        const bodyJson = JSON.parse(bodyStr)
+        const elmReplConfig = adaptConfig(bodyJson);
+        const elmLines = bodyJson.lines.split('\n');
+        if (elmLines && elmLines.length) {
+          compile(elmReplConfig, elmLines, 'Test').then((parsedModule) => {
+            response.end(JSON.stringify(parsedModule));
+          }).catch((err) => {
+            response.end(JSON.stringify({ error: err.message }));
+          });
+        } else {
+          response.end(JSON.stringify({ error: "Empty Body" }));
+        }
+
+      } catch(err) {
+        response.end(JSON.stringify({ error: "Failed to parse request body: " + err.message }));
       }
-
     } else {
       response.end(JSON.stringify({ error: "Unknown request: " + request.url }));
     }

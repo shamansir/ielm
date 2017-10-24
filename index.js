@@ -12,7 +12,7 @@ const mountNode = document.getElementById('elm-app');
 const CodeMirror = require('codemirror');
 require('codemirror/mode/elm/elm');
 
-let instanceCount = 0;
+let cellCount = 0;
 
 const elmDocument = {
     imports: [],
@@ -36,7 +36,13 @@ function elmDocumentToFileContent(elmDoc) {
 function compile(elmFileContent) {
     fetch('http://localhost:3000/compile', {
         method: "POST",
-        body: JSON.stringify({ outcoming: elmFileContent }),
+        body: JSON.stringify({
+            user: "user",
+            package: "project",
+            packageVer: "1.0.0",
+            elmVer: "0.18.0",
+            lines: elmFileContent
+        }),
         headers: {
             "Content-Type": "application/json"
         },
@@ -68,7 +74,7 @@ function isDefinition(line) {
 function onCellUpdate(cm, instanceId) {
     elmDocument.chunks[instanceId] = [];
     cm.eachLine(function(handle) {
-        if (isImport(handle)) {
+        if (isImport(handle.text)) {
             // FIXME: only if this import is known library
             elmDocument.imports = unique(elmDocument.imports.concat([ handle.text.slice(8) ]));
         } else if (handle.text.indexOf('import ') < 0) {
