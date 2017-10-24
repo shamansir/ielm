@@ -16,7 +16,8 @@ let instanceCount = 0;
 
 const elmDocument = {
     imports: [],
-    chunks: [] // array of arrays: CodeMirror instances to lines
+    definitions: [], // array of arrays: Cell ID to lines
+    chunks: [] // array of arrays: Cell ID to lines
 };
 
 const codemirrorOptions = {
@@ -49,10 +50,25 @@ function compile(elmFileContent) {
     });
 }
 
-function onInstanceUpdate(cm, instanceId) {
+function isImport(line) {
+    return line.indexOf('import ') == 0;
+}
+
+function isTypeDeclaration(line) {
+    return line.match(/^\w+\s*:/) == 0;
+}
+
+function isDefinition(line) {
+    return line.match(/^\w+\s*=/) == 0;
+}
+
+// :type
+// :kind
+
+function onCellUpdate(cm, instanceId) {
     elmDocument.chunks[instanceId] = [];
     cm.eachLine(function(handle) {
-        if (handle.text.indexOf(':import ') == 0) {
+        if (isImport(handle)) {
             // FIXME: only if this import is known library
             elmDocument.imports = unique(elmDocument.imports.concat([ handle.text.slice(8) ]));
         } else if (handle.text.indexOf('import ') < 0) {
@@ -63,8 +79,8 @@ function onInstanceUpdate(cm, instanceId) {
     //console.log(elmDocument);
 }
 
-function addInstance(target) {
-    const instanceId = instanceCount;
+function addCell(target) {
+    const cellId = cellCount;
     const codemirrorWrapper = document.createElement('div');
     const previewInstance = document.createElement('div');
     target.appendChild(codemirrorWrapper);
@@ -73,17 +89,17 @@ function addInstance(target) {
 
     codemirrorInstance.on('keypress', (cm, event) => {
         if (event.keyCode == 13 && event.shiftKey) {
-            onInstanceUpdate(cm, instanceId);
+            onCellUpdate(cm, cellId);
             event.stopPropagation();
             event.preventDefault();
         }
     });
 
-    instanceCount++;
+    cellCount++;
 }
 
 //document.addEventListener('DOMContentLoaded', function() {
-    addInstance(document.body);
+    addCell(document.body);
 //});
 
 // The third value on embed are the initial values for incomming ports into Elm
