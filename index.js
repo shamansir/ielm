@@ -21,21 +21,46 @@ const elmDocument = {
 };
 
 const codemirrorOptions = {
-    value: "foo = \"bar\"",
-    mode: "elm",
+    value: '"foobar"',
+    mode: 'elm',
     lineNumbers: true,
     autofocus: true
 };
 
 const previews = []; // Cell ID to Preview Element
 
-function elmDocumentToFileContent(elmDoc) {
-    return elmDoc.imports.map((importBody) => 'import ' + importBody)
-        .concat(elmDoc.chunks.map((lines, index) => lines.join('\n')))
-        .join('\n');
+function elmDocumentToDefinitionsFile(elmDoc) {
+    // FIXME: do not compile Prelude if definitions are empty
+    if (!elmDoc.definitions.length) return [ 'foo = "bar"' ] ;
+    return []
+        .concat(
+            elmDoc.imports
+                .map((importBody) => 'import ' + importBody)
+        )
+        .concat([ '' ])
+        .concat(
+            elmDoc.definitions.map((lines) => lines.join('\n'))
+        );
 }
 
-function compile(elmFileContent) {
+function elmDocumentToChunksFile(elmDoc, cellId) {
+    return [ 'import Prelude exposing (..)' ]
+        .concat(
+            elmDoc.imports
+                .map((importBody) => 'import ' + importBody)
+        )
+        .concat([ '' ])
+        .concat(
+            elmDoc.chunks[cellId].map((line, index) => {
+                const varName = 'chunk_' + index;
+                return varName + ' =\n    ' + line;
+                /* return varName + ' = \n'
+                    + lines.map((line) => '    ' + line).join('\\n'); */
+            })
+        );
+}
+
+function compile(elmFileContent, moduleName) {
     return fetch('http://localhost:3000/compile', {
         method: "POST",
         body: JSON.stringify({
@@ -43,6 +68,7 @@ function compile(elmFileContent) {
             package: "project",
             packageVer: "1.0.0",
             elmVer: "0.18.0",
+            moduleName: moduleName,
             lines: elmFileContent
         }),
         headers: {
@@ -69,21 +95,36 @@ function isDefinition(line) {
 // :type
 // :kind
 
-function onCellUpdate(cm, instanceId) {
-    elmDocument.chunks[instanceId] = [];
+function onCellUpdate(cm, cellId) {
+    elmDocument.chunks[cellId] = [];
     cm.eachLine(function(handle) {
         if (isImport(handle.text)) {
             // FIXME: only if this import is known library
             elmDocument.imports = unique(elmDocument.imports.concat([ handle.text.slice(8) ]));
         } else if (handle.text.indexOf('import ') < 0) {
-            elmDocument.chunks[instanceId].push(handle.text);
+            elmDocument.chunks[cellId].push(handle.text);
         }
     });
-    compile(elmDocumentToFileContent(elmDocument)).then(function(json) {
-        renderResponse(previews[instanceId], json);
-        console.log('parsed json', json);
+    compile(
+        elmDocumentToDefinitionsFile(elmDocument),
+        'Prelude'
+    ).then(function(preludeJson) {
+        console.log('prelude json', preludeJson);
+        return compile(
+            elmDocumentToChunksFile(elmDocument, cellId),
+            'Chunk' + cellId
+        )
+    }).then(function(chunksJson) {
+        if (!chunksJson.error) {
+            console.log('chunks json', chunksJson);
+            renderResponse(previews[cellId], chunksJson);
+        } else {
+            console.log('chunks compilation error', chunksJson);
+            renderError(previews[cellId], chunksJson.error);
+        }
     }).catch(function(ex) {
         console.log('parsing failed', ex);
+        renderError(previews[cellId], ex.message);
     });
     //console.log(elmDocument);
 }
@@ -110,6 +151,11 @@ function addCell(target) {
     });
 
     cellCount++;
+}
+
+function renderError(previewTarget, error) {
+    previewTarget.className = 'preview preview--error';
+    previewTarget.innerText = error;
 }
 
 function renderResponse(previewTarget, json) {

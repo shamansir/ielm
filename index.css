@@ -11,14 +11,9 @@
     height: auto;
 }
 
-.preview--empty, .preview--rendering {
-    color: #ccc;
-    /* content: "<Empty>"; */
-    height: 1.2em;
-}
-
 .preview {
     margin: 5px;
+    padding: 5px;
     border: 1px solid #ccc;
 }
 
@@ -29,4 +24,16 @@
 .preview span {
     padding: 5px;
     font-family: sans-serif;
+}
+
+.preview--empty, .preview--rendering {
+    color: #ccc;
+    /* content: "<Empty>"; */
+    height: 1.2em;
+}
+
+.preview--error {
+    color: brown;
+    font-family: monospace;
+    height: auto;
 }

@@ -18,7 +18,7 @@ const adaptConfig = (bodyJson) => {
     user: bodyJson.user || "user",
     package: bodyJson.package || "project",
     packageVer: bodyJson.packageVer || "1.0.0",
-    workDir: bodyJson.workDir || "./build",
+    workDir: bodyJson.workDir || "./build"
   }
 }
 
@@ -43,9 +43,9 @@ const requestHandler = (request, response) => {
         // compile Elm Lines
         const bodyJson = JSON.parse(bodyStr)
         const elmReplConfig = adaptConfig(bodyJson);
-        const elmLines = bodyJson.lines.split('\n');
+        const elmLines = bodyJson.lines;//.split('\n');
         if (elmLines && elmLines.length) {
-          compile(elmReplConfig, elmLines, 'Test').then((parsedModule) => {
+          compile(elmReplConfig, elmLines, bodyJson.moduleName).then((parsedModule) => {
             response.end(JSON.stringify(parsedModule));
           }).catch((err) => {
             response.end(JSON.stringify({ error: err.message }));
