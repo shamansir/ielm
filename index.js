@@ -92,7 +92,8 @@ function addCell(target) {
     const cellId = cellCount;
     const codemirrorWrapper = document.createElement('div');
     const previewInstance = document.createElement('div');
-    previewInstance.className = 'preview';
+    previewInstance.className = 'preview preview--empty';
+    previewInstance.innerText = '<Empty>';
     target.appendChild(codemirrorWrapper);
     target.appendChild(previewInstance);
     previews.push(previewInstance);
@@ -100,6 +101,8 @@ function addCell(target) {
 
     codemirrorInstance.on('keypress', (cm, event) => {
         if (event.keyCode == 13 && event.shiftKey) {
+            previewInstance.className = 'preview preview--rendering';
+            previewInstance.innerText = '<Compiling...>';
             onCellUpdate(cm, cellId);
             event.stopPropagation();
             event.preventDefault();
@@ -110,6 +113,7 @@ function addCell(target) {
 }
 
 function renderResponse(previewTarget, json) {
+    previewTarget.className = 'preview';
     previewTarget.innerHTML = '';
     if (!json.error) {
         const typeElms = json.types.map((type) => type.name)
