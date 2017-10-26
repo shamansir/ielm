@@ -8,6 +8,37 @@ const port = 3000;
 const fs = require('fs');
 const cp = require('child_process');
 
+function elmDocumentToDefinitionsFile(elmDoc) {
+  // FIXME: do not compile Prelude if definitions are empty
+  if (!elmDoc.definitions.length) return [ 'foo = "bar"' ] ;
+  return []
+      .concat(
+          elmDoc.imports
+              .map((importBody) => 'import ' + importBody)
+      )
+      .concat([ '' ])
+      .concat(
+          elmDoc.definitions.map((lines) => lines.join('\n'))
+      );
+}
+
+function elmDocumentToChunksFile(elmDoc, cellId) {
+  return [ 'import Prelude exposing (..)' ]
+      .concat(
+          elmDoc.imports
+              .map((importBody) => 'import ' + importBody)
+      )
+      .concat([ '' ])
+      .concat(
+          elmDoc.chunks.map((line, index) => {
+              const varName = 'chunk_' + index;
+              return varName + ' =\n    ' + line;
+              /* return varName + ' = \n'
+                  + lines.map((line) => '    ' + line).join('\\n'); */
+          })
+      );
+}
+
 const compile = (config, elmLines, moduleName) => {
   return new ElmRepl(config).parseLines(elmLines, moduleName)
 }
@@ -43,9 +74,21 @@ const requestHandler = (request, response) => {
         // compile Elm Lines
         const bodyJson = JSON.parse(bodyStr)
         const elmReplConfig = adaptConfig(bodyJson);
-        const elmLines = bodyJson.lines;//.split('\n');
-        if (elmLines && elmLines.length) {
-          compile(elmReplConfig, elmLines, bodyJson.moduleName).then((parsedModule) => {
+        const cellId = bodyJson.cellId;
+        const elmDocument = bodyJson.document;
+
+        if (elmDocument) {
+          compile(
+            elmReplConfig,
+            elmDocumentToDefinitionsFile(elmDocument),
+            'Prelude'
+          ).then(function(preludeJson) {
+            return compile(
+              elmReplConfig,
+              elmDocumentToChunksFile(elmDocument, cellId),
+              'Chunk' + cellId
+            )
+          }).then(function(parsedModule) {
             response.end(JSON.stringify(parsedModule));
           }).catch((err) => {
             response.end(JSON.stringify({ error: err.message }));

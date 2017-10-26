@@ -29,38 +29,7 @@ const codemirrorOptions = {
 
 const previews = []; // Cell ID to Preview Element
 
-function elmDocumentToDefinitionsFile(elmDoc) {
-    // FIXME: do not compile Prelude if definitions are empty
-    if (!elmDoc.definitions.length) return [ 'foo = "bar"' ] ;
-    return []
-        .concat(
-            elmDoc.imports
-                .map((importBody) => 'import ' + importBody)
-        )
-        .concat([ '' ])
-        .concat(
-            elmDoc.definitions.map((lines) => lines.join('\n'))
-        );
-}
-
-function elmDocumentToChunksFile(elmDoc, cellId) {
-    return [ 'import Prelude exposing (..)' ]
-        .concat(
-            elmDoc.imports
-                .map((importBody) => 'import ' + importBody)
-        )
-        .concat([ '' ])
-        .concat(
-            elmDoc.chunks[cellId].map((line, index) => {
-                const varName = 'chunk_' + index;
-                return varName + ' =\n    ' + line;
-                /* return varName + ' = \n'
-                    + lines.map((line) => '    ' + line).join('\\n'); */
-            })
-        );
-}
-
-function compile(elmFileContent, moduleName) {
+function compile(cellId) {
     return fetch('http://localhost:3000/compile', {
         method: "POST",
         body: JSON.stringify({
@@ -68,8 +37,12 @@ function compile(elmFileContent, moduleName) {
             package: "project",
             packageVer: "1.0.0",
             elmVer: "0.18.0",
-            moduleName: moduleName,
-            lines: elmFileContent
+            cellId: cellId,
+            document: {
+                imports: elmDocument.imports,
+                definitions: elmDocument.definitions[cellId] || [],
+                chunks: elmDocument.chunks[cellId] || []
+            }
         }),
         headers: {
             "Content-Type": "application/json"
@@ -78,19 +51,7 @@ function compile(elmFileContent, moduleName) {
     }).then(function(response) {
         return response.json()
     });
-}
-
-function isImport(line) {
-    return line.indexOf('import ') == 0;
-}
-
-function isTypeDeclaration(line) {
-    return line.match(/^\w+\s*:/) == 0;
-}
-
-function isDefinition(line) {
-    return line.match(/^\w+\s*=/) == 0;
-}
+  }
 
 // :type
 // :kind
@@ -105,23 +66,12 @@ function onCellUpdate(cm, cellId) {
             elmDocument.chunks[cellId].push(handle.text);
         }
     });
-    compile(
-        elmDocumentToDefinitionsFile(elmDocument),
-        'Prelude'
-    ).then(function(preludeJson) {
-        console.log('prelude json', preludeJson);
-        return compile(
-            elmDocumentToChunksFile(elmDocument, cellId),
-            'Chunk' + cellId
-        )
-    }).then(function(chunksJson) {
+    compile(cellId)
+    .then(function(chunksJson) {
         if (!chunksJson.error) {
-            console.log('chunks json', chunksJson);
+            console.log('received json', chunksJson);
             renderResponse(previews[cellId], chunksJson);
-        } else {
-            console.log('chunks compilation error', chunksJson);
-            renderError(previews[cellId], chunksJson.error);
-        }
+        } else throw new Error(chunksJson.error);
     }).catch(function(ex) {
         console.log('parsing failed', ex);
         renderError(previews[cellId], ex.message);
@@ -176,6 +126,18 @@ function renderResponse(previewTarget, json) {
         codeElm.innerText = json.error;
         previewTarget.appendChild(codeElm);
     }
+}
+
+function isImport(line) {
+  return line.indexOf('import ') == 0;
+}
+
+function isTypeDeclaration(line) {
+  return line.match(/^\w+\s*:/) == 0;
+}
+
+function isDefinition(line) {
+  return line.match(/^\w+\s*=/) == 0;
 }
 
 //document.addEventListener('DOMContentLoaded', function() {
