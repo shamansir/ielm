@@ -8,36 +8,9 @@ const port = 3000;
 const fs = require('fs');
 const cp = require('child_process');
 
-function elmDocumentToDefinitionsFile(elmDoc) {
-  // FIXME: do not compile Prelude if definitions are empty
-  if (!elmDoc.definitions.length) return [ 'foo = "bar"' ] ;
-  return []
-      .concat(
-          elmDoc.imports
-              .map((importBody) => 'import ' + importBody)
-      )
-      .concat([ '' ])
-      .concat(
-          elmDoc.definitions.map((lines) => lines.join('\n'))
-      );
-}
-
-function elmDocumentToChunksFile(elmDoc, cellId) {
-  return [ 'import Prelude exposing (..)' ]
-      .concat(
-          elmDoc.imports
-              .map((importBody) => 'import ' + importBody)
-      )
-      .concat([ '' ])
-      .concat(
-          elmDoc.chunks.map((line, index) => {
-              const varName = 'chunk_' + index;
-              return varName + ' =\n    ' + line;
-              /* return varName + ' = \n'
-                  + lines.map((line) => '    ' + line).join('\\n'); */
-          })
-      );
-}
+// REVL means Read-Evaluate-Visualize-Loop
+const RevlDocument = require('./document.js');
+const revlDocument = new RevlDocument();
 
 const compile = (config, elmLines, moduleName) => {
   return new ElmRepl(config).parseLines(elmLines, moduleName)
@@ -75,17 +48,18 @@ const requestHandler = (request, response) => {
         const bodyJson = JSON.parse(bodyStr)
         const elmReplConfig = adaptConfig(bodyJson);
         const cellId = bodyJson.cellId;
-        const elmDocument = bodyJson.document;
+        const cellContent = bodyJson.document;
 
-        if (elmDocument) {
+        if (cellContent) {
+          revlDocument.append(cellId, cellContent);
           compile(
             elmReplConfig,
-            elmDocumentToDefinitionsFile(elmDocument),
+            revlDocument.buildPreludeFor(cellId),
             'Prelude'
           ).then(function(preludeJson) {
             return compile(
               elmReplConfig,
-              elmDocumentToChunksFile(elmDocument, cellId),
+              revlDocument.buildViewerFor(cellId),
               'Chunk' + cellId
             )
           }).then(function(parsedModule) {
@@ -111,11 +85,11 @@ const requestHandler = (request, response) => {
 const server = http.createServer(requestHandler);
 
 exitHook(() => {
-    server.close();
+  server.close();
 })
 
 process.on('uncaughtException', () => {
-    server.close();
+  server.close();
 });
 
 server.listen(port, (err) => {

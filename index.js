@@ -6,19 +6,12 @@ require('./index.css');
 
 require('whatwg-fetch');
 
-const unique = require('array-unique').immutable;
 const Counter = require('./Counter.elm');
 const mountNode = document.getElementById('elm-app');
 const CodeMirror = require('codemirror');
 require('codemirror/mode/elm/elm');
 
 let cellCount = 0;
-
-const elmDocument = {
-    imports: [],
-    definitions: [], // array of arrays: Cell ID to lines
-    chunks: [] // array of arrays: Cell ID to lines
-};
 
 const codemirrorOptions = {
     value: '"foobar"',
@@ -29,7 +22,7 @@ const codemirrorOptions = {
 
 const previews = []; // Cell ID to Preview Element
 
-function compile(cellId) {
+function compile(content, cellId) {
     return fetch('http://localhost:3000/compile', {
         method: "POST",
         body: JSON.stringify({
@@ -38,11 +31,7 @@ function compile(cellId) {
             packageVer: "1.0.0",
             elmVer: "0.18.0",
             cellId: cellId,
-            document: {
-                imports: elmDocument.imports,
-                definitions: elmDocument.definitions[cellId] || [],
-                chunks: elmDocument.chunks[cellId] || []
-            }
+            document: content
         }),
         headers: {
             "Content-Type": "application/json"
@@ -57,25 +46,16 @@ function compile(cellId) {
 // :kind
 
 function onCellUpdate(cm, cellId) {
-    elmDocument.chunks[cellId] = [];
-    cm.eachLine(function(handle) {
-        if (isImport(handle.text)) {
-            // FIXME: only if this import is known library
-            elmDocument.imports = unique(elmDocument.imports.concat([ handle.text.slice(8) ]));
-        } else if (handle.text.indexOf('import ') < 0) {
-            elmDocument.chunks[cellId].push(handle.text);
-        }
-    });
-    compile(cellId)
-    .then(function(chunksJson) {
-        if (!chunksJson.error) {
-            console.log('received json', chunksJson);
-            renderResponse(previews[cellId], chunksJson);
-        } else throw new Error(chunksJson.error);
-    }).catch(function(ex) {
-        console.log('parsing failed', ex);
-        renderError(previews[cellId], ex.message);
-    });
+    compile(cm.getValue(), cellId)
+        .then(function(chunksJson) {
+            if (!chunksJson.error) {
+                console.log('received json', chunksJson);
+                renderResponse(previews[cellId], chunksJson);
+            } else throw new Error(chunksJson.error);
+        }).catch(function(ex) {
+            console.log('parsing failed', ex);
+            renderError(previews[cellId], ex.message);
+        });
     //console.log(elmDocument);
 }
 
@@ -126,18 +106,6 @@ function renderResponse(previewTarget, json) {
         codeElm.innerText = json.error;
         previewTarget.appendChild(codeElm);
     }
-}
-
-function isImport(line) {
-  return line.indexOf('import ') == 0;
-}
-
-function isTypeDeclaration(line) {
-  return line.match(/^\w+\s*:/) == 0;
-}
-
-function isDefinition(line) {
-  return line.match(/^\w+\s*=/) == 0;
 }
 
 //document.addEventListener('DOMContentLoaded', function() {
