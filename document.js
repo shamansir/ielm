@@ -8,6 +8,9 @@ class RevlDocument {
     this.chunks = []; // array of arrays: Cell ID to lines
   }
 
+  // :type
+  // :kind
+
   append(cellId, content) {
     this.definitions[cellId] = [];
     this.chunks[cellId] = [];
