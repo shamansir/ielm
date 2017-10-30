@@ -23,8 +23,6 @@ class RevlDocument {
 
     const sortedContent = this.blockReader.parse(content.split('\n'));
 
-    console.log(sortedContent);
-
     this.imports = this.imports.concat(sortedContent.imports.map(line => line.slice(8)));
     this.definitions[cellId] = sortedContent.definitions;
     this.chunks[cellId] = sortedContent.chunks;
@@ -37,24 +35,16 @@ class RevlDocument {
       ).concat(
         [ '' ]
       ).concat(
-        this.definitions.map(cellDefs => cellDefs.join('\n'))
+        this.definitions[cellId].map((lines, blockId) => {
+          return lines.join('\n');
+        })
       ).concat(
         [ '' ]
       ).concat(
-        this.chunks[cellId].map((line, index) => {
-          const varName = 'chunk_' + cellId + '_' + index;
-          return "\n" + varName + ' =\n    ' + line;
+        this.chunks[cellId].map((lines, blockId) => {
+          const varName = 'chunk_' + cellId + '_' + blockId;
+          return "\n" + varName + ' =\n' + lines.map(line => '    ' + line).join('\n');
         })
-
-        /*
-        this.chunks.map((cellChunks, cellId) =>
-          cellChunks.map((lines, index) => {
-            const varName = 'chunk_' + cellId + '_' + index;
-            return "\n" + varName + ' =\n    ' + lines.join('\n');
-            // return varName + ' = \n'
-            //     + lines.map((line) => '    ' + line).join('\\n');
-          })
-        ) */
       )
   }
 
@@ -66,10 +56,10 @@ class RevlDocument {
       ).concat(
         [ '' ]
       ).concat(
-        this.chunks[cellId].map((line, index) => {
-          const varName = 'test_' + cellId + '_' + index;
-          return "\n" + varName + ' =\n    ' + line;
+        this.chunks[cellId].map((lines, blockId) => {
           // types
+          const varName = 'test_' + cellId + '_' + blockId;
+          return "\n" + varName + ' =\n' + lines.map(line => '    ' + line).join('\n');
         })
       );
   }
@@ -95,7 +85,6 @@ class BlockReader {
   }
 
   parse(lines) {
-    // console.log('-------');
     const rules = this.rules;
     let currentRule = '';
     let blockId = {}; // by ruleName
@@ -112,19 +101,14 @@ class BlockReader {
         for (const ruleName of Object.keys(rules)) {
           if (rules[ruleName](line)) {
             currentRule = ruleName;
-            // console.log('start rule', ruleName, blockId[ruleName]);
-            // console.log(line);
             result[ruleName][blockId[ruleName]] = [];
             result[ruleName][blockId[ruleName]].push(line);
             break;
           }
         }
       } else if (currentRule) {
-        // console.log('add to rule', currentRule, blockId[currentRule]);
-        // console.log(line || '<empty>');
         result[currentRule][blockId[currentRule]].push(line);
         if (!line.length) {
-          // console.log('end rule', currentRule, blockId[currentRule]);
           blockId[currentRule] += 1;
           currentRule = '';
         }
