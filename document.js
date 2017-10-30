@@ -3,9 +3,9 @@ const unique = require('array-unique').immutable;
 class RevlDocument {
 
   constructor() {
-    this.imports = []; // array of lines
-    this.definitions = []; // array of arrays: Cell ID to lines
-    this.chunks = []; // array of arrays: Cell ID to lines
+    this.imports = []; // [Import ID] -> [String]
+    this.definitions = []; // [Cell ID] -> [Definition ID] -> [String]
+    this.chunks = []; // [Cell ID] -> [Chunk ID] -> [String]
 
     this.blockReader = new BlockReader({
       imports: isImport,
@@ -28,29 +28,6 @@ class RevlDocument {
     this.imports = this.imports.concat(sortedContent.imports.map(line => line.slice(8)));
     this.definitions[cellId] = sortedContent.definitions;
     this.chunks[cellId] = sortedContent.chunks;
-
-    /* let inDefinition = false;
-    let inChunk = false;
-    let currentDefinition = '';
-
-    .forEach(line => {
-      if (isImport(line)) {
-        // FIXME: only if this import is known library
-        this.imports = unique(this.imports.concat([ line.slice(8) ]));
-      } else if (!inChunk && !inDefinition && (isTypeDeclaration(line) || isDefinition(line))) {
-        inDefinition = true;
-        this.definitions[cellId].push(line);
-      } else if (inDefinition) {
-        if (line.length == 0) {
-          this.definitions[cellId].push('');
-          inDefinition = false;
-        } else {
-          this.definitions[cellId].push(line);
-        }
-      } else {
-        this.chunks[cellId].push(line);
-      }
-    }) */
   }
 
   buildPreludeFor(cellId) {
@@ -118,11 +95,14 @@ class BlockReader {
   }
 
   parse(lines) {
+    // console.log('-------');
     const rules = this.rules;
     let currentRule = '';
+    let blockId = {}; // by ruleName
     const result = {};
 
     for (const ruleName of Object.keys(rules)) {
+      blockId[ruleName] = 0;
       result[ruleName] = [];
     }
 
@@ -132,15 +112,22 @@ class BlockReader {
         for (const ruleName of Object.keys(rules)) {
           if (rules[ruleName](line)) {
             currentRule = ruleName;
-            result[ruleName].push(line);
+            // console.log('start rule', ruleName, blockId[ruleName]);
+            // console.log(line);
+            result[ruleName][blockId[ruleName]] = [];
+            result[ruleName][blockId[ruleName]].push(line);
             break;
           }
         }
-      } else if (currentRule && line.length) {
-        result[currentRule].push(line);
-      } else if (currentRule && !line.length) {
-        result[currentRule].push(line);
-        currentRule = '';
+      } else if (currentRule) {
+        // console.log('add to rule', currentRule, blockId[currentRule]);
+        // console.log(line || '<empty>');
+        result[currentRule][blockId[currentRule]].push(line);
+        if (!line.length) {
+          // console.log('end rule', currentRule, blockId[currentRule]);
+          blockId[currentRule] += 1;
+          currentRule = '';
+        }
       }
 
     }
