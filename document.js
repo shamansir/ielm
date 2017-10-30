@@ -18,26 +18,26 @@ class RevlDocument {
   // :kind
 
   append(cellId, content) {
+    this.imports[cellId] = []
     this.definitions[cellId] = [];
     this.chunks[cellId] = [];
 
     const sortedContent = this.blockReader.parse(content.split('\n'));
 
-    this.imports = this.imports.concat(sortedContent.imports.map(line => line.slice(8)));
+    this.imports[cellId] = sortedContent.imports;
     this.definitions[cellId] = sortedContent.definitions;
     this.chunks[cellId] = sortedContent.chunks;
   }
 
   buildPreludeFor(cellId) {
-    return this.imports
-      .map(
-        importBody => 'import ' + importBody
+    return [].concat(
+        this.imports.map((blocks, cellId) =>
+          blocks.map((lines, blockId) => lines.join('\n')).join('\n\n')
+        )
       ).concat(
         [ '' ]
       ).concat(
-        this.definitions[cellId].map((lines, blockId) => {
-          return lines.join('\n');
-        })
+        this.definitions[cellId].map((lines, blockId) => lines.join('\n'))
       ).concat(
         [ '' ]
       ).concat(
@@ -45,14 +45,13 @@ class RevlDocument {
           const varName = 'chunk_' + cellId + '_' + blockId;
           return "\n" + varName + ' =\n' + lines.map(line => '    ' + line).join('\n');
         })
-      )
+      );
   }
 
   buildViewerFor(cellId, types) {
     return [ 'import Prelude exposing (..)' ]
       .concat(
-        this.imports
-            .map((importBody) => 'import ' + importBody)
+        this.imports[cellId].map((lines, blockId) => lines.join('\n'))
       ).concat(
         [ '' ]
       ).concat(
