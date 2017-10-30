@@ -59,7 +59,7 @@ const requestHandler = (request, response) => {
           ).then(function(preludeJson) {
             return compile(
               elmReplConfig,
-              revlDocument.buildViewerFor(cellId),
+              revlDocument.buildViewerFor(cellId, preludeJson.types),
               'Chunk' + cellId
             )
           }).then(function(parsedModule) {
