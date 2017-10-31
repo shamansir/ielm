@@ -1,9 +1,13 @@
 const unique = require('array-unique').immutable;
 
+const ElmRepl = require('node-elm-repl');
+
+const INDENT = '    ';
+
 class RevlDocument {
 
   constructor() {
-    this.imports = []; // [Import ID] -> [String]
+    this.imports = []; // [Cell ID] -> [Import ID] -> [String]
     this.definitions = []; // [Cell ID] -> [Definition ID] -> [String]
     this.chunks = []; // [Cell ID] -> [Chunk ID] -> [String]
 
@@ -30,6 +34,7 @@ class RevlDocument {
   }
 
   buildPreludeFor(cellId) {
+
     return [].concat(
         this.imports.map((blocks, cellId) =>
           blocks.map((lines, blockId) => lines.join('\n')).join('\n\n')
@@ -42,13 +47,15 @@ class RevlDocument {
         [ '' ]
       ).concat(
         this.chunks[cellId].map((lines, blockId) => {
-          const varName = 'chunk_' + cellId + '_' + blockId;
-          return "\n" + varName + ' =\n' + lines.map(line => '    ' + line).join('\n');
+          const varName = `chunk_${cellId}_${blockId}`;
+          return "\n" + varName + ' =\n' + lines.map(line => INDENT + line).join('\n');
         })
       );
   }
 
   buildViewerFor(cellId, types) {
+    const typesByName = {};
+    types.forEach(it => typesByName[it.name] = it.value);
     return [ 'import Prelude exposing (..)' ]
       .concat(
         this.imports[cellId].map((lines, blockId) => lines.join('\n'))
@@ -57,8 +64,10 @@ class RevlDocument {
       ).concat(
         this.chunks[cellId].map((lines, blockId) => {
           // types
-          const varName = 'test_' + cellId + '_' + blockId;
-          return "\n" + varName + ' =\n' + lines.map(line => '    ' + line).join('\n');
+          const varName = `chunk_${cellId}_${blockId}`;
+          const varType = typesByName[varName];
+          const varTypeStr = ElmRepl.stringify(varType);
+          return `\nt_${varName} =\n${INDENT}"${varTypeStr}"`;
         })
       );
   }
