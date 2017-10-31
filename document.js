@@ -60,7 +60,15 @@ class RevlDocument {
     }, {});
     return [ 'import Prelude exposing (..)' ]
       .concat(
+        [ '' ]
+      ).concat(
         this.imports[cellId].map((lines, blockId) => lines.join('\n'))
+      ).concat(
+        [ '' ]
+      ).concat(
+        Object.keys(componentsByVar).map(key =>
+          `import Component.${componentsByVar[key]} as ${componentsByVar[key]}`
+        )
       ).concat(
         [ '' ]
       ).concat(
@@ -68,7 +76,7 @@ class RevlDocument {
           // types
           const varName = `chunk_${cellId}_${blockId}`;
           const component = componentsByVar[varName];
-          return `\nt_${varName} =\n${INDENT}"${component}"`;
+          return `\nt_${varName} =\n${INDENT}${component}.render "${varName}"`;
         })
       );
   }

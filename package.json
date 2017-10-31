@@ -18,7 +18,7 @@
     "webpack-dev-server": "^2.9.1"
   },
   "scripts": {
-    "start": "node ./server.js & ./node_modules/.bin/webpack-dev-server",
+    "start": "cp -R ./Component ./build & node ./server.js & ./node_modules/.bin/webpack-dev-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
