@@ -1,6 +1,7 @@
 const unique = require('array-unique').immutable;
 
 const ElmRepl = require('node-elm-repl');
+const matchComponent = require('./match-component.js');
 
 const INDENT = '    ';
 
@@ -34,7 +35,6 @@ class RevlDocument {
   }
 
   buildPreludeFor(cellId) {
-
     return [].concat(
         this.imports.map((blocks, cellId) =>
           blocks.map((lines, blockId) => lines.join('\n')).join('\n\n')
@@ -54,8 +54,10 @@ class RevlDocument {
   }
 
   buildViewerFor(cellId, types) {
-    const typesByName = {};
-    types.forEach(it => typesByName[it.name] = it.value);
+    const componentsByVar = types.reduce((map, current) => {
+      map[current.name] = matchComponent(ElmRepl.stringify(current.value));
+      return map;
+    }, {});
     return [ 'import Prelude exposing (..)' ]
       .concat(
         this.imports[cellId].map((lines, blockId) => lines.join('\n'))
@@ -65,9 +67,8 @@ class RevlDocument {
         this.chunks[cellId].map((lines, blockId) => {
           // types
           const varName = `chunk_${cellId}_${blockId}`;
-          const varType = typesByName[varName];
-          const varTypeStr = ElmRepl.stringify(varType);
-          return `\nt_${varName} =\n${INDENT}"${varTypeStr}"`;
+          const component = componentsByVar[varName];
+          return `\nt_${varName} =\n${INDENT}"${component}"`;
         })
       );
   }
