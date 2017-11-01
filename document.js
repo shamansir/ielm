@@ -34,6 +34,10 @@ class RevlDocument {
     this.chunks[cellId] = sortedContent.chunks;
   }
 
+  getBlockCount(cellId) {
+    return this.chunks[cellId] ? this.chunks[cellId].length : 0;
+  }
+
   buildPreludeFor(cellId) {
     return [].concat(
         this.imports.map((blocks, cellId) =>
@@ -92,7 +96,7 @@ class RevlDocument {
         this.chunks[cellId].map((lines, blockId) => {
           const varName = `chunk_${cellId}_${blockId}`;
           const component = componentsByVar[varName];
-          return `t_${varName} =\n${INDENT}${component}.render ${varName}`;
+          return `t_${varName} =\n${INDENT}${component}.render ${varName}\n`;
         })
       ).concat(
         [ ''

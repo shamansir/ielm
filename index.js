@@ -47,7 +47,7 @@ function onCellUpdate(cm, cellId) {
     .then(function(chunksJson) {
       if (!chunksJson.error) {
           console.log('received json', chunksJson);
-          renderResponse(previews[cellId], chunksJson);
+          renderResponse(cellId, previews[cellId], chunksJson);
       } else throw new Error(chunksJson.error);
     }).catch(function(ex) {
       console.error('parsing failed', ex);
@@ -85,18 +85,14 @@ function renderError(previewTarget, error) {
   previewTarget.innerText = error;
 }
 
-function renderResponse(previewTarget, json) {
+function renderResponse(cellId, previewTarget, json) {
   previewTarget.className = 'preview';
   previewTarget.innerHTML = '';
   if (!json.error) {
-    const typeElms = json.types.map((type) => type.name)
-      .map((typeName) => {
-        const typeElm = document.createElement('span');
-        typeElm.innerText = typeElm.textContent = typeName;
-        return typeElm;
-      });
-    for (const typeElmIndex in typeElms) {
-      previewTarget.appendChild(typeElms[typeElmIndex]);
+    require('./build/Chunk' + cellId + '.js');
+    for (var blockId = 0; blockId < json.blockCount; blockId++) {
+      const blockElm = document.createElement('div');
+      Elm['Chunk' + chunkId].embed(blockElm, blockId);
     }
   } else {
     const codeElm = document.createElement('code');

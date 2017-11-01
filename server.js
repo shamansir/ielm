@@ -57,13 +57,22 @@ const requestHandler = (request, response) => {
             revlDocument.buildPreludeFor(cellId),
             'Prelude'
           ).then(function(preludeJson) {
-            return compile(
-              elmReplConfig,
-              revlDocument.buildViewerFor(cellId, preludeJson.types),
-              'Chunk' + cellId
-            )
-          }).then(function(parsedModule) {
-            response.end(JSON.stringify(parsedModule));
+            const blockCount = revlDocument.getBlockCount(cellId);
+            const initialDir = process.cwd();
+            process.chdir(elmReplConfig.workDir);
+            const chunkFileName = 'Chunk' + cellId + '.elm';
+            const chunkJsFileName = 'Chunk' + cellId + '.js';
+            fs.writeFileSync(chunkFileName,
+              revlDocument.buildViewerFor(cellId, preludeJson.types).join('\n') + '\n');
+
+            cp.execSync('elm-make --yes ' + chunkFileName + ' --output ' + chunkJsFileName,
+                { cwd: process.cwd() });
+            process.chdir(initialDir);
+            return {
+              'blockCount': blockCount
+            };
+          }).then(function(viewerInfo) {
+            response.end(JSON.stringify(viewerInfo));
           }).catch((err) => {
             response.end(JSON.stringify({ error: err.message }));
           });

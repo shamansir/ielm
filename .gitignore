@@ -1,3 +1,4 @@
 node_modules
 elm-stuff
 build/
+npm-debug.log

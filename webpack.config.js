@@ -15,7 +15,14 @@ module.exports = {
         {
           test:    /\.elm$/,
           exclude: [/elm-stuff/, /node_modules/],
-          loader:  'elm-webpack-loader?verbose=true&warn=true',
+          use: {
+            loader:  'elm-webpack-loader',
+            options: {
+              cwd: './build',
+              verbose: true,
+              warn: true
+            }
+          }
         },
         {
           test: /\.css$/,
