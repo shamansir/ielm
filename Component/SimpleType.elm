@@ -1,4 +1,6 @@
 module Component.SimpleType exposing (render)
 
-render : String -> String
-render str = str
+import Html exposing (..)
+
+render : String -> Html a
+render str = span [] [ text str ]

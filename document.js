@@ -58,7 +58,10 @@ class RevlDocument {
       map[current.name] = matchComponent(ElmRepl.stringify(current.value));
       return map;
     }, {});
-    return [ 'import Prelude exposing (..)' ]
+    return [
+          'import Html exposing (..)'
+        , 'import Prelude exposing (..)'
+        ]
       .concat(
         [ '' ]
       ).concat(
@@ -70,14 +73,37 @@ class RevlDocument {
           `import Component.${componentsByVar[key]} as ${componentsByVar[key]}`
         )
       ).concat(
-        [ '' ]
+        [ ''
+        , 'type alias Model = Int'
+        , ''
+        , 'view : Model -> Html a'
+        , 'view varIndex ='
+        , `${INDENT}case varIndex of`
+        ]
       ).concat(
         this.chunks[cellId].map((lines, blockId) => {
-          // types
+          const varName = `chunk_${cellId}_${blockId}`;
+          return `${INDENT}${INDENT}${blockId} -> t_${varName}`;
+        })
+      ).concat(
+        [ `${INDENT}${INDENT}_ -> div [] [ text "Unknown chunk" ]`
+        , '' ]
+      ).concat(
+        this.chunks[cellId].map((lines, blockId) => {
           const varName = `chunk_${cellId}_${blockId}`;
           const component = componentsByVar[varName];
-          return `\nt_${varName} =\n${INDENT}${component}.render "${varName}"`;
+          return `t_${varName} =\n${INDENT}${component}.render ${varName}`;
         })
+      ).concat(
+        [ ''
+        , 'main ='
+        , `${INDENT}programWithFlags`
+        , `${INDENT}${INDENT}{ init = \\flags -> (flags, Cmd.none)`
+        , `${INDENT}${INDENT}, update = \\_ model -> (model, Cmd.none)`
+        , `${INDENT}${INDENT}, subscriptions = \\_ -> Sub.none`
+        , `${INDENT}${INDENT}, view = view`
+        , `${INDENT}${INDENT}}`
+        ]
       );
   }
 
