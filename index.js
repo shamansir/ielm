@@ -89,10 +89,15 @@ function renderResponse(cellId, previewTarget, json) {
   previewTarget.className = 'preview';
   previewTarget.innerHTML = '';
   if (!json.error) {
-    require('./build/Chunk' + cellId + '.js');
+    const Chunk = require('./build/Chunk' + cellId + '.js');
+    if (!Chunk || !Chunk.Main) {
+      renderError(previewTarget, 'Compiled Chunk file was not found or has no Main entry-point');
+      return;
+    }
     for (var blockId = 0; blockId < json.blockCount; blockId++) {
       const blockElm = document.createElement('div');
-      Elm['Chunk' + chunkId].embed(blockElm, blockId);
+      Chunk.Main.embed(blockElm, blockId);
+      previewTarget.appendChild(blockElm);
     }
   } else {
     const codeElm = document.createElement('code');
