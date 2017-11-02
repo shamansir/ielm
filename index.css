@@ -1,20 +1,47 @@
 .CodeMirror {
+    position: relative;
     border: 1px solid #ccc;
-    /* width: 90%;
-    height: auto; */
-    /* padding: 10px 5px; */
-    margin: 5px;
+    border-bottom-color: #bbb;
+    margin: 5px 5px 0 5px;
     height: auto;
+    box-shadow: 0px 1px 1px rgba(200,200,200,0.6);
 }
 
 .CodeMirror-scroll {
     height: auto;
 }
 
+.tabpanel {
+    position: relative;
+    margin: 0 10px;
+    display: block;
+    z-index: -1;
+    /* width: 100%;*/
+}
+
+.tab {
+    display: inline-block;
+    position: relative;
+    /* font-family: sans-serif; */
+    cursor: pointer;
+    background-color: black;
+    content: "#1";
+    color: white;
+    padding: 0px 2px 1px 2px;
+    font-size: 10px;
+    border: 1px solid black;
+    border-top-width: 0.4px;
+    border-radius: 0 0 4px 4px;
+    box-shadow: inset -1px -0.5px 0px rgba(255,255,255,0.75);
+}
+
 .preview {
     margin: 5px;
-    padding: 5px;
-    border: 1px solid #ccc;
+    padding: 6px 5px 6px 32px;
+    border: 1px solid #aaa;
+    border-bottom-color: #999;
+    box-shadow: 0px 1px 1px rgba(200,200,200,0.6);
+    /* box-shadow: 0px 1px 1px rgba(200,200,200,0.6), inset 0px 1px 2px rgba(200,200,200,0.3); */
 }
 
 .preview code {
@@ -27,7 +54,8 @@
 }
 
 .preview--empty, .preview--rendering {
-    color: #ccc;
+    font-family: monospace;
+    color: #bbb;
     /* content: "<Empty>"; */
     height: 1.2em;
 }

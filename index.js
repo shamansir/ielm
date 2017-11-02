@@ -11,6 +11,9 @@ const mountNode = document.getElementById('elm-app');
 const CodeMirror = require('codemirror');
 require('codemirror/mode/elm/elm');
 
+const Tabs = require('./tabs.js');
+const Preview = require('./preview.js');
+
 let cellCount = 0;
 
 const codemirrorOptions = {
@@ -21,6 +24,7 @@ const codemirrorOptions = {
 };
 
 const previews = []; // Cell ID to Preview Element
+const tabs = []; // Cell ID to Tab Panel
 
 function compile(content, cellId) {
   return fetch('http://localhost:3000/compile', {
@@ -47,11 +51,11 @@ function onCellUpdate(cm, cellId) {
     .then(function(chunksJson) {
       if (!chunksJson.error) {
           console.log('received json', chunksJson);
-          renderResponse(cellId, previews[cellId], chunksJson);
+          previews[cellId].update(chunksJson);
       } else throw new Error(chunksJson.error);
     }).catch(function(ex) {
       console.error('parsing failed', ex);
-      renderError(previews[cellId], ex.message);
+      previews[cellId].error(ex.message);
     });
     //console.log(elmDocument);
 }
@@ -59,18 +63,18 @@ function onCellUpdate(cm, cellId) {
 function addCell(target) {
   const cellId = cellCount;
   const codemirrorWrapper = document.createElement('div');
-  const previewInstance = document.createElement('div');
-  previewInstance.className = 'preview preview--empty';
-  previewInstance.innerText = '<Empty>';
+  const tabPanelInstance = new Tabs(cellId);
+  const previewInstance = new Preview(cellId);
   target.appendChild(codemirrorWrapper);
-  target.appendChild(previewInstance);
+  target.appendChild(tabPanelInstance.getElement());
+  target.appendChild(previewInstance.getElement());
   previews.push(previewInstance);
+  tabs.push(tabPanelInstance);
   const codemirrorInstance = CodeMirror(codemirrorWrapper, codemirrorOptions);
 
   codemirrorInstance.on('keypress', (cm, event) => {
     if (event.keyCode == 13 && event.shiftKey) {
-      previewInstance.className = 'preview preview--rendering';
-      previewInstance.innerText = '<Compiling...>';
+      previewInstance.busy();
       onCellUpdate(cm, cellId);
       event.stopPropagation();
       event.preventDefault();
@@ -78,32 +82,6 @@ function addCell(target) {
   });
 
   cellCount++;
-}
-
-function renderError(previewTarget, error) {
-  previewTarget.className = 'preview preview--error';
-  previewTarget.innerText = error;
-}
-
-function renderResponse(cellId, previewTarget, json) {
-  previewTarget.className = 'preview';
-  previewTarget.innerHTML = '';
-  if (!json.error) {
-    const Chunk = require('./build/Chunk' + cellId + '.js');
-    if (!Chunk || !Chunk.Main) {
-      renderError(previewTarget, 'Compiled Chunk file was not found or has no Main entry-point');
-      return;
-    }
-    for (var blockId = 0; blockId < json.blockCount; blockId++) {
-      const blockElm = document.createElement('div');
-      Chunk.Main.embed(blockElm, blockId);
-      previewTarget.appendChild(blockElm);
-    }
-  } else {
-    const codeElm = document.createElement('code');
-    codeElm.innerText = json.error;
-    previewTarget.appendChild(codeElm);
-  }
 }
 
 //document.addEventListener('DOMContentLoaded', function() {
