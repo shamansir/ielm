@@ -52,12 +52,15 @@ function onCellUpdate(cm, cellId) {
   compile(cm.getValue(), cellId)
     .then(function(chunksJson) {
       if (!chunksJson.error) {
-          return new Promise((resolve, reject) => {
-            importScript(`./build/Chunk${cellId}.js`, () => {
-              const Chunk = Elm[`Chunk${cellId}`];
-              previews[cellId].update(chunksJson, Chunk);
-            }, reject);
-          });
+        const version = chunksJson.version;
+        const moduleName = `Chunk${cellId}_${version}`;
+        return new Promise((resolve, reject) => {
+          importScript(`./build/${moduleName}.js`, () => {
+            const Chunk = Elm[moduleName];
+            console.log(Chunk);
+            previews[cellId].update(chunksJson, Chunk);
+          }, reject);
+        });
       } else throw new Error(chunksJson.error);
     }).catch(function(ex) {
       console.error('parsing failed', ex);

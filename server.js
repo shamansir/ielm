@@ -26,6 +26,8 @@ const adaptConfig = (bodyJson) => {
   }
 }
 
+const versions = []; // Cell ID to version
+
 const requestHandler = (request, response) => {
 
   let requestBody = [];
@@ -60,9 +62,17 @@ const requestHandler = (request, response) => {
             const blockCount = revlDocument.getBlockCount(cellId);
             const initialDir = process.cwd();
             process.chdir(elmReplConfig.workDir);
-            const moduleName = 'Chunk' + cellId;
-            const chunkElmFileName = moduleName + '.elm';
-            const chunkJsFileName = moduleName+ '.js';
+            // FIXME: Use msec as a version?
+            const prevVersion = versions[cellId] || 0;
+            const prevModuleName = `Chunk${cellId}_${prevVersion}`
+            const prevChunkElmFileName = `${prevModuleName}.elm`;
+            const prevChunkJsFileName = `${prevModuleName}.js`;
+            //fs.unlinkSync(prevChunkElmFileName);
+            //fs.unlinkSync(prevChunkJsFileName);
+            const version = prevVersion + 1;
+            const moduleName = `Chunk${cellId}_${version}`;
+            const chunkElmFileName = `${moduleName}.elm`;
+            const chunkJsFileName = `${moduleName}.js`;
             fs.writeFileSync(chunkElmFileName,
               // FIXME expose only required variables
               [ `module ${moduleName} exposing (..)` ].concat([' ']).concat(
@@ -72,7 +82,9 @@ const requestHandler = (request, response) => {
             cp.execSync('elm-make --yes ' + chunkElmFileName + ' --output ' + chunkJsFileName,
                 { cwd: process.cwd() });
             process.chdir(initialDir);
+            versions[cellId] = version;
             return {
+              'version': version,
               'blockCount': blockCount
             };
           }).then(function(viewerInfo) {
