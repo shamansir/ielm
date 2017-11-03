@@ -14,22 +14,26 @@ module.exports = {
       loaders: [
         {
           test: /\.css$/,
+          exclude: /build/,
           use: [
             { loader: "style-loader" },
             { loader: "css-loader" }
           ]
-        },
-        {
-          test: /\.elm$/,
-          loader: 'ignore-loader'
-        },
-        {
-          test: /^build\//,
-          loader: 'ignore-loader'
         }
       ],
-      noParse: /\.elm$/
+      noParse: [ /\.elm$/, /^.\/build\// ]
     },
+
+    externals:
+      [
+        function(context, request, callback) {
+          // exclude ./ChunkNN.js, ChunkNN.js etc.
+          if (/^\.?(\/)?Chunk\d+\.js$/.test(request)) {
+            return callback(null, 'commonjs ' + request);
+          }
+          callback();
+        }
+      ],
 
     devServer: {
       inline: true,

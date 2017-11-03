@@ -16,19 +16,18 @@ class Preview {
     this.elm.innerText = '<Compiling...>';
   }
 
-  update(json) {
+  update(json, chunkElmModule) {
     const cellId = this.cellId;
     this.elm.className = 'preview';
     this.elm.innerHTML = '';
     if (!json.error) {
-      const Chunk = require('./build/Chunk' + cellId + '.js');
-      if (!Chunk || !Chunk.Main) {
+      if (!chunkElmModule || !chunkElmModule.embed) {
         this.error('Compiled Chunk file was not found or has no Main entry-point');
         return;
       }
       for (var blockId = 0; blockId < json.blockCount; blockId++) {
         const blockElm = document.createElement('div');
-        Chunk.Main.embed(blockElm, blockId);
+        chunkElmModule.embed(blockElm, blockId);
         this.elm.appendChild(blockElm);
       }
     } else {

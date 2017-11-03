@@ -6,13 +6,15 @@ require('./index.css');
 
 require('whatwg-fetch');
 
-//const Counter = require('./Counter.elm');
-const mountNode = document.getElementById('elm-app');
 const CodeMirror = require('codemirror');
 require('codemirror/mode/elm/elm');
 
+const importScript = require('./import-script.js');
+
 const Tabs = require('./tabs.js');
 const Preview = require('./preview.js');
+
+const mountNode = document.getElementById('elm-app');
 
 let cellCount = 0;
 
@@ -50,8 +52,12 @@ function onCellUpdate(cm, cellId) {
   compile(cm.getValue(), cellId)
     .then(function(chunksJson) {
       if (!chunksJson.error) {
-          console.log('received json', chunksJson);
-          previews[cellId].update(chunksJson);
+          return new Promise((resolve, reject) => {
+            importScript(`./build/Chunk${cellId}.js`, () => {
+              const Chunk = Elm[`Chunk${cellId}`];
+              previews[cellId].update(chunksJson, Chunk);
+            }, reject);
+          });
       } else throw new Error(chunksJson.error);
     }).catch(function(ex) {
       console.error('parsing failed', ex);

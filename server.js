@@ -60,12 +60,16 @@ const requestHandler = (request, response) => {
             const blockCount = revlDocument.getBlockCount(cellId);
             const initialDir = process.cwd();
             process.chdir(elmReplConfig.workDir);
-            const chunkFileName = 'Chunk' + cellId + '.elm';
-            const chunkJsFileName = 'Chunk' + cellId + '.js';
-            fs.writeFileSync(chunkFileName,
-              revlDocument.buildViewerFor(cellId, preludeJson.types).join('\n') + '\n');
-
-            cp.execSync('elm-make --yes ' + chunkFileName + ' --output ' + chunkJsFileName,
+            const moduleName = 'Chunk' + cellId;
+            const chunkElmFileName = moduleName + '.elm';
+            const chunkJsFileName = moduleName+ '.js';
+            fs.writeFileSync(chunkElmFileName,
+              // FIXME expose only required variables
+              [ `module ${moduleName} exposing (..)` ].concat([' ']).concat(
+                revlDocument.buildViewerFor(cellId, preludeJson.types)
+              ).join('\n') + '\n'
+            );
+            cp.execSync('elm-make --yes ' + chunkElmFileName + ' --output ' + chunkJsFileName,
                 { cwd: process.cwd() });
             process.chdir(initialDir);
             return {
