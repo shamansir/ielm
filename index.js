@@ -57,7 +57,6 @@ function onCellUpdate(cm, cellId) {
         return new Promise((resolve, reject) => {
           importScript(`./build/${moduleName}.js`, () => {
             const Chunk = Elm[moduleName];
-            console.log(Chunk);
             previews[cellId].update(chunksJson, Chunk);
           }, reject);
         });

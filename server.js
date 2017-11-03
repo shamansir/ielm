@@ -67,8 +67,8 @@ const requestHandler = (request, response) => {
             const prevModuleName = `Chunk${cellId}_${prevVersion}`
             const prevChunkElmFileName = `${prevModuleName}.elm`;
             const prevChunkJsFileName = `${prevModuleName}.js`;
-            //fs.unlinkSync(prevChunkElmFileName);
-            //fs.unlinkSync(prevChunkJsFileName);
+            fs.unlinkSync('./' + prevChunkElmFileName, (err) => {});
+            fs.unlinkSync('./' + prevChunkJsFileName, (err) => {});
             const version = prevVersion + 1;
             const moduleName = `Chunk${cellId}_${version}`;
             const chunkElmFileName = `${moduleName}.elm`;
