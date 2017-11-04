@@ -59,7 +59,9 @@ class RevlDocument {
 
   buildViewerFor(cellId, types) {
     const componentsByVar = types.reduce((map, current) => {
-      map[current.name] = matchComponent(ElmRepl.stringify(current.value));
+      if (current.name.indexOf('chunk_') == 0) {
+        map[current.name] = matchComponent(current.value);
+      }
       return map;
     }, {});
     return [
