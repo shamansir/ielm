@@ -51,6 +51,9 @@ const requestHandler = (request, response) => {
         const elmReplConfig = adaptConfig(bodyJson);
         const cellId = bodyJson.cellId;
         const cellContent = bodyJson.document;
+        const initialDir = process.cwd();
+
+        let version;
 
         if (cellContent) {
           revlDocument.append(cellId, cellContent);
@@ -60,7 +63,6 @@ const requestHandler = (request, response) => {
             'Prelude'
           ).then(function(preludeJson) {
             const blockCount = revlDocument.getBlockCount(cellId);
-            const initialDir = process.cwd();
             process.chdir(elmReplConfig.workDir);
 
             const prevVersion = versions[cellId] || 0;
@@ -68,14 +70,14 @@ const requestHandler = (request, response) => {
             const prevChunkElmFileName = `./${prevModuleName}.elm`;
             const prevChunkJsFileName = `./${prevModuleName}.js`;
             if (fs.existsSync(prevChunkElmFileName)) {
-              fs.unlinkSync('./' + prevChunkElmFileName);
+              fs.unlinkSync(prevChunkElmFileName);
             };
             if (fs.existsSync(prevChunkJsFileName)) {
-              fs.unlinkSync('./' + prevChunkJsFileName);
+              fs.unlinkSync(prevChunkJsFileName);
             };
 
             // FIXME: Use msec as a version?
-            const version = prevVersion + 1;
+            version = prevVersion + 1;
             const moduleName = `Chunk${cellId}_${version}`;
             const chunkElmFileName = `./${moduleName}.elm`;
             const chunkJsFileName = `./${moduleName}.js`;
@@ -87,17 +89,17 @@ const requestHandler = (request, response) => {
             );
             cp.execSync('elm-make --yes ' + chunkElmFileName + ' --output ' + chunkJsFileName,
                 { cwd: process.cwd() });
-
-            process.chdir(initialDir);
-            versions[cellId] = version;
             return {
               'version': version,
               'blockCount': blockCount
             };
-          }).then(function(viewerInfo) {
+          }).then((viewerInfo) => {
             response.end(JSON.stringify(viewerInfo));
           }).catch((err) => {
             response.end(JSON.stringify({ error: err.message }));
+          }).then(() => { // a.k.a. finally
+            process.chdir(initialDir);
+            versions[cellId] = version;
           });
         } else {
           response.end(JSON.stringify({ error: "Empty Body" }));
