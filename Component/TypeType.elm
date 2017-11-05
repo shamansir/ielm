@@ -1,4 +1,4 @@
-module Component.TypeType exposing (render, TypeAtom)
+module Component.TypeType exposing (render, TypeAtom(..))
 
 -- See https://github.com/shamansir/node-elm-repl/blob/master/Types.md as a reference
 

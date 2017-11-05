@@ -2,6 +2,7 @@ const unique = require('array-unique').immutable;
 
 const ElmRepl = require('node-elm-repl');
 const matchComponent = require('./match-component.js');
+const adaptType = require('./adapt-type.js');
 
 const INDENT = '    ';
 
@@ -64,6 +65,12 @@ class RevlDocument {
       }
       return map;
     }, {});
+    const typesByVar = types.reduce((map, current) => {
+      if (current.name.indexOf('chunk_') == 0) {
+        map[current.name] = adaptType(current.value);
+      }
+      return map;
+    }, {});
     return [
           'import Html exposing (..)'
         , 'import Prelude exposing (..)'
@@ -73,7 +80,11 @@ class RevlDocument {
       ).concat(
         this.imports[cellId].map((lines, blockId) => lines.join('\n'))
       ).concat(
-        [ '' ]
+        [ ''
+        , 'import Component.Cell as Cell'
+        , 'import Component.TypeType exposing (TypeAtom(..))'
+        , ''
+        ]
       ).concat(
         Object.keys(componentsByVar).map(key =>
           `import Component.${componentsByVar[key]} as ${componentsByVar[key]}`
@@ -92,13 +103,14 @@ class RevlDocument {
           return `${INDENT}${INDENT}${blockId} -> t_${varName}`;
         })
       ).concat(
-        [ `${INDENT}${INDENT}_ -> div [] [ text "Unknown chunk" ]`
+        [ `${INDENT}${INDENT}_ -> div [] [ text "Unknown chunk type" ]`
         , '' ]
       ).concat(
         this.chunks[cellId].map((lines, blockId) => {
           const varName = `chunk_${cellId}_${blockId}`;
           const component = componentsByVar[varName];
-          return `t_${varName} =\n${INDENT}${component}.render ${varName}\n`;
+          const adaptedType = typesByVar[varName];
+          return `t_${varName} =${INDENT}${varName} |> Cell.render\n${INDENT}${INDENT}${component}.render\n${INDENT}${INDENT}${adaptedType}\n`;
         })
       ).concat(
         [ ''
