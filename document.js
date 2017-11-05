@@ -120,11 +120,14 @@ function isImport(line) {
 }
 
 function isTypeDeclaration(line) {
-  return line.match(/^\w+\s*:/) != null;
+  return (line.indexOf('type ') == 0) ||
+         (line.match(/^\w+\s*:/) != null);
 }
 
 function isDefinition(line) {
-  return line.match(/^\w+\s*=/) != null;
+  return (line.match(/^\w+\s*=/) != null) ||
+         (line.indexOf('-- ') == 0) ||
+         (line.indexOf('{- ') == 0); // FIXME: store comments separately
 }
 
 class BlockReader {
