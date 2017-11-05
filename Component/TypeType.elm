@@ -21,16 +21,23 @@ render atom =
         Variable v -> span [ class "type_var" ] [ text v ]
         Lambda left right ->
             div [ class "type_lambda" ]
-                [ render left, render right ]
+                [ div [ class "lambda_left" ] [ render left ]
+                , div [ class "lambda_right" ] [ render right ]
+                ]
         Application subj obj ->
             div [ class "type_app" ]
-                ((render subj) :: (obj |> List.map render))
+                [ div [ class "app_subj" ] [ render subj ]
+                , div [ class "app_obj" ] (obj |> List.map render)
+                ]
         Alias def list ->
             div [ class "type_aliased" ]
-                ((render def) :: (list |> List.map render))
+                [ div [ class "aliased_def" ] [ render def ]
+                , div [ class "aliased_list" ] (list |> List.map render)
+                ]
         Record fields ->
             div [ class "type_record" ]
-                (fields |> List.map renderField)
+                [ div [ class "record_fields" ] (fields |> List.map renderField)
+                ]
 
 renderField : (String, TypeAtom) -> Html msg
 renderField ( name, atom ) =
