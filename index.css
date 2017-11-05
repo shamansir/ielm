@@ -90,3 +90,16 @@
     border: 1px solid #ccc;
     border-radius: 5px;
 }
+
+.cell_type .type_var {
+    padding: 1px 2px;
+    color: tomato;
+    background-color: transparent;
+    border: 1px solid tomato;
+    border-radius: 5px;
+}
+
+.type_lambda .lambda_left::after {
+    content: "→";
+    padding: 0 2px;
+}
