@@ -1,0 +1,37 @@
+.cell {
+    margin-bottom: 10px;
+    width: 95%;
+    border-bottom: 1px solid #eee;
+}
+
+.cell_type {
+    font-family: sans-serif;
+    font-size: 10px;
+    margin-top: 3px;
+    margin-bottom: 8px;
+}
+
+.cell_type div {
+    display: inline;
+}
+
+.cell_type .type_atom {
+    padding: 1px 2px;
+    color: white;
+    background-color: #ccc;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.cell_type .type_var {
+    padding: 1px 2px;
+    color: tomato;
+    background-color: transparent;
+    border: 1px solid tomato;
+    border-radius: 5px;
+}
+
+.type_lambda .lambda_left::after {
+    content: "→";
+    padding: 0 2px;
+}

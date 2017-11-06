@@ -20,10 +20,10 @@
   "scripts": {
     "create-build-dir": "mkdir ./build",
     "clean-build": "rm -Rf ./build",
-    "copy-components": "cp -R ./Component ./build",
-    "copy-elm-package": "cp ./elm-package.sample.json ./build/elm-package.json",
+    "copy-components": "cp -R ./src/server/Component ./build",
+    "copy-elm-package": "cp ./src/server/elm-package.sample.json ./build/elm-package.json",
     "install-packages": "cd ./build && elm-package install --yes && cd ..",
-    "start-server": "node ./server.js",
+    "start-server": "node ./src/server/server.js",
     "start-client": "./node_modules/.bin/webpack-dev-server",
     "quick-start": "npm run copy-components && npm run copy-elm-package && npm run install-packages && npm run start-server & npm run start-client",
     "start": "npm run clean-build && npm run create-build-dir && npm run quick-start",

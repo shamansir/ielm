@@ -1,0 +1,30 @@
+.preview {
+    margin: 5px;
+    padding: 6px 5px 6px 32px;
+    border: 1px solid #aaa;
+    border-bottom-color: #999;
+    box-shadow: 0px 1px 1px rgba(200,200,200,0.6);
+    /* box-shadow: 0px 1px 1px rgba(200,200,200,0.6), inset 0px 1px 2px rgba(200,200,200,0.3); */
+}
+
+.preview code {
+    color: brown;
+}
+
+.preview span {
+    padding: 5px;
+    font-family: sans-serif;
+}
+
+.preview--empty, .preview--rendering {
+    font-family: monospace;
+    color: #bbb;
+    /* content: "<Empty>"; */
+    height: 1.2em;
+}
+
+.preview--error {
+    color: brown;
+    font-family: monospace;
+    height: auto;
+}

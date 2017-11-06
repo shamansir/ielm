@@ -27,8 +27,8 @@ module.exports = {
     externals:
       [
         function(context, request, callback) {
-          // exclude ./ChunkNN.js, ChunkNN.js etc.
-          if (/^\.?(\/)?Chunk\d+\.js$/.test(request)) {
+          // exclude ./ChunkNN_NN.js, ChunkNN_NN.js etc.
+          if (/^\.?(\/)?Chunk\d+_\d+\.js$/.test(request)) {
             return callback(null, 'commonjs ' + request);
           }
           callback();
