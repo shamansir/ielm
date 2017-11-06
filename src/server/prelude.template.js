@@ -1,17 +1,17 @@
-function prelude(cellId, allImports, definitions, chunks) {
+function prelude(screenId, allImports, definitions, chunks) {
   return [].concat(
-    allImports.map((blocks, cellId) =>
-      blocks.map((lines, blockId) => lines.join('\n')).join('\n\n')
+    allImports.map((cells, screenId) =>
+      cells.map((lines, cellId) => lines.join('\n')).join('\n\n')
     )
   ).concat(
     [ '' ]
   ).concat(
-    definitions.map((lines, blockId) => lines.join('\n'))
+    definitions.map((lines, cellId) => lines.join('\n'))
   ).concat(
     [ '' ]
   ).concat(
-    chunks.map((lines, blockId) => {
-      return `chunk_${cellId}_${blockId} =
+    chunks.map((lines, cellId) => {
+      return `cell_${screenId}_${cellId} =
 ${
   lines.map(line => `   ${line}`).join('\n')
 }

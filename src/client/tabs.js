@@ -1,11 +1,11 @@
 class Tabs {
 
-  constructor(cellId) {
-    this.cellId = cellId;
+  constructor(screenId) {
+    this.screenId = screenId;
     this.elm = document.createElement('div');
     this.elm.className = 'tabpanel tabpanel--empty';
     this.tabs = {};
-    this.addTab('cellId', `#${cellId}`, { background: 'black' });
+    this.addTab('screenId', `#${screenId}`, { background: 'black' });
     this.addTab('test', 'Test', { align: '97%', background: 'red' });
   }
 

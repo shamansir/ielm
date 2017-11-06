@@ -16,19 +16,19 @@ class Preview {
     this.elm.innerText = '<Compiling...>';
   }
 
-  update(json, chunkElmModule) {
+  update(json, screenElmModule) {
     const cellId = this.cellId;
     this.elm.className = 'preview';
     this.elm.innerHTML = '';
     if (!json.error) {
-      if (!chunkElmModule || !chunkElmModule.embed) {
-        this.error('Compiled Chunk file was not found or has no Main entry-point');
+      if (!screenElmModule || !screenElmModule.embed) {
+        this.error('Compiled Screen file was not found or has no Main entry-point');
         return;
       }
-      for (var blockId = 0; blockId < json.blockCount; blockId++) {
-        const blockElm = document.createElement('div');
-        chunkElmModule.embed(blockElm, blockId);
-        this.elm.appendChild(blockElm);
+      for (let cellId = 0; cellId < json.cellCount; cellId++) {
+        const cellElm = document.createElement('div');
+        screenElmModule.embed(cellElm, cellId);
+        this.elm.appendChild(cellElm);
       }
     } else {
       const codeElm = document.createElement('code');

@@ -6,9 +6,9 @@ const viewerTemplate = require('./viewer.template.js');
 class RevlDocument {
 
   constructor() {
-    this.imports = []; // [Cell ID] -> [Import ID] -> [String]
-    this.definitions = []; // [Cell ID] -> [Definition ID] -> [String]
-    this.chunks = []; // [Cell ID] -> [Chunk ID] -> [String]
+    this.imports = []; // [Screen ID] -> [Import ID] -> [String]
+    this.definitions = []; // [Screen ID] -> [Definition ID] -> [String]
+    this.chunks = []; // [Screen ID] -> [Cell ID] -> [String]
 
     this.blockReader = new BlockReader({
       imports: isImport,
@@ -17,28 +17,30 @@ class RevlDocument {
     })
   }
 
-  append(cellId, content) {
-    this.imports[cellId] = []
-    this.definitions[cellId] = [];
-    this.chunks[cellId] = [];
+  append(screenId, content) {
+    this.imports[screenId] = []
+    this.definitions[screenId] = [];
+    this.chunks[screenId] = [];
 
     const sortedContent = this.blockReader.parse(content.split('\n'));
 
-    this.imports[cellId] = sortedContent.imports;
-    this.definitions[cellId] = sortedContent.definitions;
-    this.chunks[cellId] = sortedContent.chunks;
+    this.imports[screenId] = sortedContent.imports;
+    this.definitions[screenId] = sortedContent.definitions;
+    this.chunks[screenId] = sortedContent.chunks;
   }
 
-  getBlockCount(cellId) {
-    return this.chunks[cellId] ? this.chunks[cellId].length : 0;
+  getCellCount(screenId) {
+    return this.chunks[screenId] ? this.chunks[screenId].length : 0;
   }
 
-  buildPreludeFor(cellId) {
-    return preludeTemplate(cellId, this.imports, this.definitions[cellId], this.chunks[cellId]);
+  buildPreludeFor(screenId) {
+    return preludeTemplate(screenId, this.imports,
+                           this.definitions[screenId], this.chunks[screenId]);
   }
 
-  buildViewerFor(cellId, types) {
-    return viewerTemplate(cellId, types, this.imports[cellId], this.chunks[cellId]);
+  buildViewerFor(screenId, types) {
+    return viewerTemplate(screenId, types,
+                          this.imports[screenId], this.chunks[screenId]);
   }
 
 }

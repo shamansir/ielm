@@ -1,15 +1,15 @@
 const matchComponent = require('./match-component.js');
 const adaptType = require('./adapt-type.js');
 
-function viewer(cellId, types, imports, chunks) {
+function viewer(screenId, types, imports, chunks) {
   const componentsByVar = types.reduce((map, current) => {
-    if (current.name.indexOf('chunk_') == 0) {
+    if (current.name.indexOf('cell_') == 0) {
       map[current.name] = matchComponent(current.value);
     }
     return map;
   }, {});
   const typesByVar = types.reduce((map, current) => {
-    if (current.name.indexOf('chunk_') == 0) {
+    if (current.name.indexOf('cell_') == 0) {
       map[current.name] = adaptType(current.value);
     }
     return map;
@@ -18,7 +18,7 @@ function viewer(cellId, types, imports, chunks) {
 import Html exposing (..)
 import Prelude exposing (..)
 
-${ imports.map((lines, blockId) => lines.join('\n')).join('\n') }
+${ imports.map((lines, cellId) => lines.join('\n')).join('\n') }
 
 import Component.Cell as Cell
 import Component.TypeType exposing (TypeAtom(..))
@@ -32,19 +32,19 @@ ${
 type alias Model = Int
 
 view : Model -> Html a
-view varIndex =
-    case varIndex of
+view cellId =
+    case cellId of
 ${
-  chunks.map((lines, blockId) => {
-    const varName = `chunk_${cellId}_${blockId}`;
-    return `        ${blockId} -> t_${varName}`;
+  chunks.map((lines, cellId) => {
+    const varName = `cell_${screenId}_${cellId}`;
+    return `        ${cellId} -> t_${varName}`;
   }).join('\n')
 }
-        _ -> div [] [ text "Unknown chunk type" ]
+        _ -> div [] [ text "Unknown cell type" ]
 
 ${
-  chunks.map((lines, blockId) => {
-    const varName = `chunk_${cellId}_${blockId}`;
+  chunks.map((lines, cellId) => {
+    const varName = `cell_${screenId}_${cellId}`;
     const component = componentsByVar[varName];
     const adaptedType = typesByVar[varName];
     return `t_${varName} =

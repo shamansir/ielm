@@ -25,7 +25,7 @@ const codemirrorOptions = {
   autofocus: true
 };
 
-function compile(content, cellId) {
+function compile(content, screenId) {
   return fetch('http://localhost:3000/compile', {
     method: "POST",
     body: JSON.stringify({
@@ -33,7 +33,7 @@ function compile(content, cellId) {
       package: "project",
       packageVer: "1.0.0",
       elmVer: "0.18.0",
-      cellId: cellId,
+      screenId: screenId,
       document: content
     }),
     headers: {
@@ -48,20 +48,20 @@ function compile(content, cellId) {
 class App {
 
   constructor() {
-    this.cellCount = 0;
-    this.previews = []; // Cell ID to Preview Element
-    this.tabs = []; // Cell ID to Tab Panel
+    this.screenCount = 0;
+    this.previews = []; // Screen ID to Preview Element
+    this.tabs = []; // Screen ID to Tab Panel
   }
 
   start() {
-    this.addCell(document.body);
+    this.addScreen(document.body);
   }
 
-  addCell(target) {
-    const cellId = this.cellCount;
+  addScreen(target) {
+    const screenId = this.screenCount;
     const codemirrorWrapper = document.createElement('div');
-    const tabPanelInstance = new Tabs(cellId);
-    const previewInstance = new Preview(cellId);
+    const tabPanelInstance = new Tabs(screenId);
+    const previewInstance = new Preview(screenId);
     target.appendChild(codemirrorWrapper);
     target.appendChild(tabPanelInstance.getElement());
     target.appendChild(previewInstance.getElement());
@@ -72,32 +72,32 @@ class App {
     codemirrorInstance.on('keypress', (cm, event) => {
       if (event.keyCode == 13 && event.shiftKey) {
         previewInstance.busy();
-        this.onCellUpdate(cm, cellId);
+        this.onScreenUpdate(cm, screenId);
         event.stopPropagation();
         event.preventDefault();
       }
     });
 
-    this.cellCount++;
+    this.screenCount++;
   }
 
-  onCellUpdate(cm, cellId) {
+  onScreenUpdate(cm, screenId) {
     const previews = this.previews;
-    compile(cm.getValue(), cellId)
-      .then(function(chunksJson) {
-        if (!chunksJson.error) {
-          const version = chunksJson.version;
-          const moduleName = `Chunk${cellId}_${version}`;
+    compile(cm.getValue(), screenId)
+      .then(function(screenJson) {
+        if (!screenJson.error) {
+          const version = screenJson.version;
+          const moduleName = `Screen${screenId}_${version}`;
           return new Promise((resolve, reject) => {
             importScript(`./build/${moduleName}.js`, () => {
-              const Chunk = Elm[moduleName];
-              previews[cellId].update(chunksJson, Chunk);
+              const Screen = Elm[moduleName];
+              previews[screenId].update(screenJson, Screen);
             }, reject);
           });
-        } else throw new Error(chunksJson.error);
+        } else throw new Error(screenJson.error);
       }).catch(function(ex) {
         console.error('parsing failed', ex);
-        previews[cellId].error(ex.message);
+        previews[screenId].error(ex.message);
       });
       //console.log(elmDocument);
   }

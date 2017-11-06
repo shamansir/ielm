@@ -26,7 +26,7 @@ const adaptConfig = (bodyJson) => {
   }
 }
 
-const versions = []; // Cell ID to version
+const versions = []; // Screen ID to version
 
 const requestHandler = (request, response) => {
 
@@ -49,49 +49,49 @@ const requestHandler = (request, response) => {
         // compile Elm Lines
         const bodyJson = JSON.parse(bodyStr)
         const elmReplConfig = adaptConfig(bodyJson);
-        const cellId = bodyJson.cellId;
-        const cellContent = bodyJson.document;
+        const screenId = bodyJson.screenId;
+        const screenContent = bodyJson.document;
         const initialDir = process.cwd();
 
         let version;
 
-        if (cellContent) {
-          revlDocument.append(cellId, cellContent);
+        if (screenContent) {
+          revlDocument.append(screenId, screenContent);
           compile(
             elmReplConfig,
-            revlDocument.buildPreludeFor(cellId),
+            revlDocument.buildPreludeFor(screenId),
             'Prelude'
           ).then(function(preludeJson) {
-            const blockCount = revlDocument.getBlockCount(cellId);
+            const cellCount = revlDocument.getCellCount(screenId);
             process.chdir(elmReplConfig.workDir);
 
-            const prevVersion = versions[cellId] || 0;
-            const prevModuleName = `Chunk${cellId}_${prevVersion}`
-            const prevChunkElmFileName = `./${prevModuleName}.elm`;
-            const prevChunkJsFileName = `./${prevModuleName}.js`;
-            if (fs.existsSync(prevChunkElmFileName)) {
-              fs.unlinkSync(prevChunkElmFileName);
+            const prevVersion = versions[screenId] || 0;
+            const prevModuleName = `Screen${screenId}_v${prevVersion}`
+            const prevScreenElmFileName = `./${prevModuleName}.elm`;
+            const prevScreenJsFileName = `./${prevModuleName}.js`;
+            if (fs.existsSync(prevScreenElmFileName)) {
+              fs.unlinkSync(prevScreenElmFileName);
             };
-            if (fs.existsSync(prevChunkJsFileName)) {
-              fs.unlinkSync(prevChunkJsFileName);
+            if (fs.existsSync(prevScreenJsFileName)) {
+              fs.unlinkSync(prevScreenJsFileName);
             };
 
             // FIXME: Use msec as a version?
             version = prevVersion + 1;
-            const moduleName = `Chunk${cellId}_${version}`;
-            const chunkElmFileName = `./${moduleName}.elm`;
-            const chunkJsFileName = `./${moduleName}.js`;
-            fs.writeFileSync(chunkElmFileName,
+            const moduleName = `Screen${screenId}_${version}`;
+            const screenElmFileName = `./${moduleName}.elm`;
+            const screenJsFileName = `./${moduleName}.js`;
+            fs.writeFileSync(screenElmFileName,
               // FIXME expose only required variables
               [ `module ${moduleName} exposing (..)` ].concat([' ']).concat(
-                revlDocument.buildViewerFor(cellId, preludeJson.types)
+                revlDocument.buildViewerFor(screenId, preludeJson.types)
               ).join('\n') + '\n'
             );
-            cp.execSync('elm-make --yes ' + chunkElmFileName + ' --output ' + chunkJsFileName,
+            cp.execSync('elm-make --yes ' + screenElmFileName + ' --output ' + screenJsFileName,
                 { cwd: process.cwd() });
             return {
               'version': version,
-              'blockCount': blockCount
+              'cellCount': cellCount
             };
           }).then((viewerInfo) => {
             response.end(JSON.stringify(viewerInfo));
@@ -99,7 +99,7 @@ const requestHandler = (request, response) => {
             response.end(JSON.stringify({ error: err.message }));
           }).then(() => { // a.k.a. finally
             process.chdir(initialDir);
-            versions[cellId] = version;
+            versions[screenId] = version;
           });
         } else {
           response.end(JSON.stringify({ error: "Empty Body" }));

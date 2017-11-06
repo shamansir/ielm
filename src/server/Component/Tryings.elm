@@ -94,3 +94,11 @@ main =
     , subscriptions = \_ -> Sub.none
     , view = view
     }
+
+
+-- type alias Model = {
+--     selectedCell: Int,
+--     cellModel: Cell.Model
+-- }
+
+-- type Msg = UpdateCell Int Cell.Msg
