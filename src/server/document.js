@@ -1,10 +1,7 @@
-const unique = require('array-unique').immutable;
-
 const ElmRepl = require('node-elm-repl');
-const matchComponent = require('./match-component.js');
-const adaptType = require('./adapt-type.js');
 
-const INDENT = '    ';
+const preludeTemplate = require('./prelude.template.js');
+const viewerTemplate = require('./viewer.template.js');
 
 class RevlDocument {
 
@@ -19,9 +16,6 @@ class RevlDocument {
       chunks: line => !isImport(line) && !isDefinition(line) && !isTypeDeclaration(line)
     })
   }
-
-  // :type
-  // :kind
 
   append(cellId, content) {
     this.imports[cellId] = []
@@ -40,89 +34,11 @@ class RevlDocument {
   }
 
   buildPreludeFor(cellId) {
-    return [].concat(
-        this.imports.map((blocks, cellId) =>
-          blocks.map((lines, blockId) => lines.join('\n')).join('\n\n')
-        )
-      ).concat(
-        [ '' ]
-      ).concat(
-        this.definitions[cellId].map((lines, blockId) => lines.join('\n'))
-      ).concat(
-        [ '' ]
-      ).concat(
-        this.chunks[cellId].map((lines, blockId) => {
-          const varName = `chunk_${cellId}_${blockId}`;
-          return "\n" + varName + ' =\n' + lines.map(line => INDENT + line).join('\n');
-        })
-      );
+    return preludeTemplate(cellId, this.imports, this.definitions[cellId], this.chunks[cellId]);
   }
 
   buildViewerFor(cellId, types) {
-    const componentsByVar = types.reduce((map, current) => {
-      if (current.name.indexOf('chunk_') == 0) {
-        map[current.name] = matchComponent(current.value);
-      }
-      return map;
-    }, {});
-    const typesByVar = types.reduce((map, current) => {
-      if (current.name.indexOf('chunk_') == 0) {
-        map[current.name] = adaptType(current.value);
-      }
-      return map;
-    }, {});
-    return [
-          'import Html exposing (..)'
-        , 'import Prelude exposing (..)'
-        ]
-      .concat(
-        [ '' ]
-      ).concat(
-        this.imports[cellId].map((lines, blockId) => lines.join('\n'))
-      ).concat(
-        [ ''
-        , 'import Component.Cell as Cell'
-        , 'import Component.TypeType exposing (TypeAtom(..))'
-        , ''
-        ]
-      ).concat(
-        Object.keys(componentsByVar).map(key =>
-          `import Component.${componentsByVar[key]} as ${componentsByVar[key]}`
-        )
-      ).concat(
-        [ ''
-        , 'type alias Model = Int'
-        , ''
-        , 'view : Model -> Html a'
-        , 'view varIndex ='
-        , `${INDENT}case varIndex of`
-        ]
-      ).concat(
-        this.chunks[cellId].map((lines, blockId) => {
-          const varName = `chunk_${cellId}_${blockId}`;
-          return `${INDENT}${INDENT}${blockId} -> t_${varName}`;
-        })
-      ).concat(
-        [ `${INDENT}${INDENT}_ -> div [] [ text "Unknown chunk type" ]`
-        , '' ]
-      ).concat(
-        this.chunks[cellId].map((lines, blockId) => {
-          const varName = `chunk_${cellId}_${blockId}`;
-          const component = componentsByVar[varName];
-          const adaptedType = typesByVar[varName];
-          return `t_${varName} =${INDENT}${varName} |> Cell.render\n${INDENT}${INDENT}${component}.render\n${INDENT}${INDENT}${adaptedType}\n`;
-        })
-      ).concat(
-        [ ''
-        , 'main ='
-        , `${INDENT}programWithFlags`
-        , `${INDENT}${INDENT}{ init = \\flags -> (flags, Cmd.none)`
-        , `${INDENT}${INDENT}, update = \\_ model -> (model, Cmd.none)`
-        , `${INDENT}${INDENT}, subscriptions = \\_ -> Sub.none`
-        , `${INDENT}${INDENT}, view = view`
-        , `${INDENT}${INDENT}}`
-        ]
-      );
+    return viewerTemplate(cellId, types, this.imports[cellId], this.chunks[cellId]);
   }
 
 }
