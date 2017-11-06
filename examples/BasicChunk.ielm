@@ -1,0 +1,22 @@
+a : Int -> Int -> Int
+a b c = b + c
+
+"foo"
+
+"foobar"
+
+a
+
+0.3
+
+17
+
+type alias Test = {
+  a: Int,
+  b: Int
+}
+
+b : Test
+b = { a = 1, b = 2 }
+
+b

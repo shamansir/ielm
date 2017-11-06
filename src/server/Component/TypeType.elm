@@ -11,7 +11,8 @@ type TypeAtom
     | Variable String
     | Lambda TypeAtom TypeAtom
     | Application TypeAtom (List TypeAtom)
-    | Alias TypeAtom (List TypeAtom)
+    | Alias String (List TypeAtom)
+    | MessageAlias String String
     | Record (List (String, TypeAtom))
 
 render : TypeAtom -> Html msg
@@ -29,10 +30,15 @@ render atom =
                 [ div [ class "app_subj" ] [ render subj ]
                 , div [ class "app_obj" ] (obj |> List.map render)
                 ]
-        Alias def list ->
+        Alias name list ->
             div [ class "type_aliased" ]
-                [ div [ class "aliased_def" ] [ render def ]
+                [ span [ class "aliased_def" ] [ text name ]
                 , div [ class "aliased_list" ] (list |> List.map render)
+                ]
+        MessageAlias name msgvar ->
+            div [ class "type_aliased type_aliased--message" ]
+                [ span [ class "aliased_def" ] [ text name ]
+                , span [ class "aliased_msg" ] [ text msgvar ]
                 ]
         Record fields ->
             div [ class "type_record" ]
