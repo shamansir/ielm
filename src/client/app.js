@@ -18,17 +18,12 @@ const importScript = require('./import-script.js');
 const Tabs = require('./tabs.js');
 const Preview = require('./preview.js');
 
-let cellCount = 0;
-
 const codemirrorOptions = {
   value: '"foobar"',
   mode: 'elm',
   lineNumbers: true,
   autofocus: true
 };
-
-const previews = []; // Cell ID to Preview Element
-const tabs = []; // Cell ID to Tab Panel
 
 function compile(content, cellId) {
   return fetch('http://localhost:3000/compile', {
@@ -50,53 +45,64 @@ function compile(content, cellId) {
   });
 }
 
-function onCellUpdate(cm, cellId) {
-  compile(cm.getValue(), cellId)
-    .then(function(chunksJson) {
-      if (!chunksJson.error) {
-        const version = chunksJson.version;
-        const moduleName = `Chunk${cellId}_${version}`;
-        return new Promise((resolve, reject) => {
-          importScript(`./build/${moduleName}.js`, () => {
-            const Chunk = Elm[moduleName];
-            previews[cellId].update(chunksJson, Chunk);
-          }, reject);
-        });
-      } else throw new Error(chunksJson.error);
-    }).catch(function(ex) {
-      console.error('parsing failed', ex);
-      previews[cellId].error(ex.message);
+class App {
+
+  constructor() {
+    this.cellCount = 0;
+    this.previews = []; // Cell ID to Preview Element
+    this.tabs = []; // Cell ID to Tab Panel
+  }
+
+  start() {
+    this.addCell(document.body);
+  }
+
+  addCell(target) {
+    const cellId = this.cellCount;
+    const codemirrorWrapper = document.createElement('div');
+    const tabPanelInstance = new Tabs(cellId);
+    const previewInstance = new Preview(cellId);
+    target.appendChild(codemirrorWrapper);
+    target.appendChild(tabPanelInstance.getElement());
+    target.appendChild(previewInstance.getElement());
+    this.previews.push(previewInstance);
+    this.tabs.push(tabPanelInstance);
+    const codemirrorInstance = CodeMirror(codemirrorWrapper, codemirrorOptions);
+
+    codemirrorInstance.on('keypress', (cm, event) => {
+      if (event.keyCode == 13 && event.shiftKey) {
+        previewInstance.busy();
+        this.onCellUpdate(cm, cellId);
+        event.stopPropagation();
+        event.preventDefault();
+      }
     });
-    //console.log(elmDocument);
+
+    this.cellCount++;
+  }
+
+  onCellUpdate(cm, cellId) {
+    const previews = this.previews;
+    compile(cm.getValue(), cellId)
+      .then(function(chunksJson) {
+        if (!chunksJson.error) {
+          const version = chunksJson.version;
+          const moduleName = `Chunk${cellId}_${version}`;
+          return new Promise((resolve, reject) => {
+            importScript(`./build/${moduleName}.js`, () => {
+              const Chunk = Elm[moduleName];
+              previews[cellId].update(chunksJson, Chunk);
+            }, reject);
+          });
+        } else throw new Error(chunksJson.error);
+      }).catch(function(ex) {
+        console.error('parsing failed', ex);
+        previews[cellId].error(ex.message);
+      });
+      //console.log(elmDocument);
+  }
+
 }
 
-function addCell(target) {
-  const cellId = cellCount;
-  const codemirrorWrapper = document.createElement('div');
-  const tabPanelInstance = new Tabs(cellId);
-  const previewInstance = new Preview(cellId);
-  target.appendChild(codemirrorWrapper);
-  target.appendChild(tabPanelInstance.getElement());
-  target.appendChild(previewInstance.getElement());
-  previews.push(previewInstance);
-  tabs.push(tabPanelInstance);
-  const codemirrorInstance = CodeMirror(codemirrorWrapper, codemirrorOptions);
-
-  codemirrorInstance.on('keypress', (cm, event) => {
-    if (event.keyCode == 13 && event.shiftKey) {
-      previewInstance.busy();
-      onCellUpdate(cm, cellId);
-      event.stopPropagation();
-      event.preventDefault();
-    }
-  });
-
-  cellCount++;
-}
-
-function start() {
-  addCell(document.body);
-};
-
-module.exports = start;
+module.exports = App;
 
