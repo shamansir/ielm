@@ -37,10 +37,10 @@ view varIndex =
 ${
   chunks.map((lines, blockId) => {
     const varName = `chunk_${cellId}_${blockId}`;
-    return `    ${blockId} -> t_${varName}`;
+    return `        ${blockId} -> t_${varName}`;
   }).join('\n')
 }
-    _ -> div [] [ text "Unknown chunk type" ]
+        _ -> div [] [ text "Unknown chunk type" ]
 
 ${
   chunks.map((lines, blockId) => {
@@ -49,18 +49,18 @@ ${
     const adaptedType = typesByVar[varName];
     return `t_${varName} =
     ${varName} |> Cell.render
-      ${component}.render
-      ${adaptedType}`;
+        ${component}.render
+        ${adaptedType}`;
   }).join('\n\n')
 }
 
 main =
-  programWithFlags
-    { init = \\flags -> (flags, Cmd.none)
-    , update = \\_ model -> (model, Cmd.none)
-    , subscriptions = \\_ -> Sub.none
-    , view = view
-    }
+    programWithFlags
+        { init = \\flags -> (flags, Cmd.none)
+        , update = \\_ model -> (model, Cmd.none)
+        , subscriptions = \\_ -> Sub.none
+        , view = view
+        }
 `.split('\n')
 }
 

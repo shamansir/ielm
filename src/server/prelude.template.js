@@ -13,7 +13,7 @@ function prelude(cellId, allImports, definitions, chunks) {
     chunks.map((lines, blockId) => {
       return `chunk_${cellId}_${blockId} =
 ${
-  lines.map(line => `  ${line}`).join('\n')
+  lines.map(line => `   ${line}`).join('\n')
 }
   `
     })
