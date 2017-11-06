@@ -3,13 +3,20 @@ const ElmRepl = require('node-elm-repl');
 function match(type) {
     const stringifiedType = ElmRepl.stringify(type/*, stringifier*/);
     //console.log(type, stringifiedType);
-    if (isSimpleType(stringifiedType)) return 'SimpleType';
+    if (isStringType(stringifiedType)) return 'StringType';
+    if (isStringCompatibleType(stringifiedType)) return 'StringCompatibleType';
     if (isHtmlType(stringifiedType)) return 'HtmlType';
     return 'UnknownType';
 }
 
-function isSimpleType(type) {
+function isStringType(type) {
     return (type === 'String');
+}
+
+function isStringCompatibleType(type) {
+    return (type === 'number') ||
+           (type === 'Int') ||
+           (type === 'Float');
 }
 
 function isHtmlType(type) {

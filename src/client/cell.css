@@ -35,3 +35,19 @@
     content: "→";
     padding: 0 2px;
 }
+
+.comp_string::before {
+    content: "\"";
+}
+
+.comp_string::after {
+    content: "\"";
+}
+
+.comp_stringp {
+    color: darkgreen;
+}
+
+.comp_unknown {
+    color: rosybrown;
+}
