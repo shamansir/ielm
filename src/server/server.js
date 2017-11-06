@@ -78,7 +78,7 @@ const requestHandler = (request, response) => {
 
             // FIXME: Use msec as a version?
             version = prevVersion + 1;
-            const moduleName = `Screen${screenId}_${version}`;
+            const moduleName = `Screen${screenId}_v${version}`;
             const screenElmFileName = `./${moduleName}.elm`;
             const screenJsFileName = `./${moduleName}.js`;
             fs.writeFileSync(screenElmFileName,

@@ -87,7 +87,7 @@ class App {
       .then(function(screenJson) {
         if (!screenJson.error) {
           const version = screenJson.version;
-          const moduleName = `Screen${screenId}_${version}`;
+          const moduleName = `Screen${screenId}_v${version}`;
           return new Promise((resolve, reject) => {
             importScript(`./build/${moduleName}.js`, () => {
               const Screen = Elm[moduleName];
