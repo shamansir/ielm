@@ -44,6 +44,33 @@
     padding: 1px 2px;
 }
 
+.type_record {
+    color: darkcyan;
+    background-color: beige;
+    border: 1px solid beige;
+    border-radius: 5px;
+    padding: 1px 2px;
+}
+
+.type_record::before {
+    font-weight: bold;
+    content: "{ ";
+}
+
+.type_record::after {
+    font-weight: bold;
+    content: " }";
+}
+
+.record_field::after {
+    content: ", ";
+}
+
+.field_name::after {
+    font-weight: bold;
+    content: ": ";
+}
+
 .aliased_def {
     padding: 2px 1px;
     margin-right: 3px;
