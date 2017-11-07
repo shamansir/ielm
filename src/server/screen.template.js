@@ -1,7 +1,7 @@
 const matchComponent = require('./match-component.js');
 const adaptType = require('./adapt-type.js');
 
-function viewer(screenId, types, imports, chunks) {
+function screen(screenId, types, imports, chunks) {
   const componentsByVar = types.reduce((map, current) => {
     if (current.name.indexOf('cell_') == 0) {
       map[current.name] = matchComponent(current.value);
@@ -31,7 +31,7 @@ ${
 
 type alias Model = Int
 
-view : Model -> Html a
+view : Model -> Html Cell.Action
 view cellId =
     case cellId of
 ${
@@ -48,7 +48,7 @@ ${
     const component = componentsByVar[varName];
     const adaptedType = typesByVar[varName];
     return `t_${varName} =
-    ${varName} |> Cell.render
+    ${varName} |> Cell.renderBasic
         ${component}.render
         ${adaptedType}`;
   }).join('\n\n')
@@ -64,5 +64,5 @@ main =
 `.split('\n')
 }
 
-module.exports = viewer;
+module.exports = screen;
 

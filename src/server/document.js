@@ -1,7 +1,7 @@
 const ElmRepl = require('node-elm-repl');
 
 const preludeTemplate = require('./prelude.template.js');
-const viewerTemplate = require('./viewer.template.js');
+const screenTemplate = require('./screen.template.js');
 
 class RevlDocument {
 
@@ -38,8 +38,8 @@ class RevlDocument {
                            this.definitions[screenId], this.chunks[screenId]);
   }
 
-  buildViewerFor(screenId, types) {
-    return viewerTemplate(screenId, types,
+  buildScreenFor(screenId, types) {
+    return screenTemplate(screenId, types,
                           this.imports[screenId], this.chunks[screenId]);
   }
 

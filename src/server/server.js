@@ -84,7 +84,7 @@ const requestHandler = (request, response) => {
             fs.writeFileSync(screenElmFileName,
               // FIXME expose only required variables
               [ `module ${moduleName} exposing (..)` ].concat([' ']).concat(
-                revlDocument.buildViewerFor(screenId, preludeJson.types)
+                revlDocument.buildScreenFor(screenId, preludeJson.types)
               ).join('\n') + '\n'
             );
             cp.execSync('elm-make --yes ' + screenElmFileName + ' --output ' + screenJsFileName,
