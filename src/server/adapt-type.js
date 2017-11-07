@@ -1,4 +1,4 @@
-// See https://github.com/shamansir/node-elm-repl/blob/master/Types.md as a reference
+// See https://github.com/shamansir/node-elm-repl/blob/master/Types.md for reference
 
 function stringify(t) {
     if (t.type == 'type') return `(Name "${t.def.name}")`;

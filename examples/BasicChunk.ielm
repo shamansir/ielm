@@ -24,3 +24,11 @@ b = { a = 1, b = 2 }
 b
 
 List.map (\n -> n - 1) [ 1, 2, 3 ]
+
+origin : { x : Float, y : Float }
+origin =
+  { x = 0
+  , y = 0
+  }
+
+origin

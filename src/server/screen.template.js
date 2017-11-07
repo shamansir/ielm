@@ -4,7 +4,7 @@ const adaptType = require('./adapt-type.js');
 function screen(screenId, types, imports, chunks) {
   const componentsByVar = types.reduce((map, current) => {
     if (current.name.indexOf('cell_') == 0) {
-      map[current.name] = matchComponent(current.value);
+      map[current.name] = matchComponent(current.value).requirements[0];
     }
     return map;
   }, {});
