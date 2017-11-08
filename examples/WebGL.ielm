@@ -92,3 +92,7 @@ fragmentShader =
     |]
 
 view 790
+
+perspective 790
+
+mesh
