@@ -39,7 +39,7 @@ function match(type) {
     if (mayBeViewedIn3d(type)) {
         return component(
             '3d',
-            '3DViewer'
+            'ThreeDViewer'
         );
     }
     return component('Unknown', 'UnknownType');
