@@ -1,0 +1,12 @@
+( 1, 2 )
+
+( "a", [ 2, 6, 5 ])
+
+( "a", Array.fromList [ 2, 6, 5 ])
+
+type alias Test2 = ( String, String )
+
+c : Test2
+c = ( "a", "b" )
+
+c

@@ -1,18 +1,20 @@
 // See https://github.com/shamansir/node-elm-repl/blob/master/Types.md for reference
 
+var unique = require('array-unique').immutable;
+
 function match(type) {
     if (isStringType(type)) {
-        return component('String', [ 'StringType' ]);
+        return component('string', 'StringType');
     }
     if (isStringCompatibleType(type)) {
-        return component('StringCompatible', [ 'StringCompatibleType' ]);
+        return component('stringable', 'StringCompatibleType');
     }
     if (isHtmlType(type)) {
-        return component('Html', [ 'HtmlType' ]);
+        return component('html', 'HtmlType');
     }
     if (isListType(type)) {
         const itemComp = match(extractListItemType(type));
-        return component('List', [ 'ListType' ].concat(itemComp.requirements), itemComp);
+        return component('list', 'ListType', itemComp.requirements, itemComp);
     }
     if (isRecordType(type)) {
         const fieldData = extractRecordFieldData(type);
@@ -28,18 +30,22 @@ function match(type) {
             (allRequirements, fieldRequirements) => allRequirements.concat(fieldRequirements),
         []);
         return component(
-            'Record',
-            [ 'RecordType' ].concat(fieldRequirements),
+            'record',
+            'RecordType',
+            fieldRequirements,
             fieldComponents
         );
     }
-    return component('Unknown', [ 'UnknownType' ]);
+    return component('Unknown', 'UnknownType');
 }
 
-function component(alias, componentList, payload) {
+function component(alias, baseComponent, requirements, payload) {
     return {
         alias: alias,
-        requirements: componentList,
+        base: baseComponent,
+        requirements: requirements
+            ? unique([ baseComponent ].concat(requirements))
+            : [ baseComponent ],
         payload: payload
     }
 }
@@ -52,7 +58,8 @@ function isStringCompatibleType(t) {
     if ((t.type === 'var') && (t.name === 'number')) return true;
     return ((t.type === 'type') &&
             ((t.def.name === 'Int') ||
-             (t.def.name === 'Float')));
+             (t.def.name === 'Float') ||
+             (t.def.name === 'Char')));
 }
 
 function isHtmlType(t) {

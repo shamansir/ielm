@@ -4,7 +4,7 @@ const adaptType = require('./adapt-type.js');
 function screen(screenId, types, imports, chunks) {
   const componentsByVar = types.reduce((map, current) => {
     if (current.name.indexOf('cell_') == 0) {
-      map[current.name] = matchComponent(current.value).requirements[0];
+      map[current.name] = matchComponent(current.value);
     }
     return map;
   }, {});
@@ -24,9 +24,12 @@ import Component.Cell as Cell
 import Component.TypeType exposing (TypeAtom(..))
 
 ${
-  Object.keys(componentsByVar).map(key =>
-    `import Component.${componentsByVar[key]} as ${componentsByVar[key]}`
-  ).join('\n')
+  Object.keys(componentsByVar).map(varName => {
+    const component = componentsByVar[varName];
+    return component.requirements.map((requirement) =>
+      `import Component.${requirement} as ${requirement}`
+    ).join('\n');
+  }).join('\n')
 }
 
 type alias Model = Int
@@ -49,7 +52,7 @@ ${
     const adaptedType = typesByVar[varName];
     return `t_${varName} =
     ${varName} |> Cell.renderBasic
-        ${component}.render
+        ${getRenderCallFor(component)}
         ${adaptedType}`;
   }).join('\n\n')
 }
@@ -62,6 +65,16 @@ main =
         , view = view
         }
 `.split('\n')
+}
+
+function getRenderCallFor(component) {
+  if (component.alias === 'list') {
+    return `(${component.base}.render (${getRenderCallFor(component.payload)}))`;
+  } else if (component.alias === 'record') {
+    return `${component.base}.render (\\_ -> span [ ] [ text "N/A" ])`; // TODO
+  } else {
+    return `${component.base}.render`;
+  }
 }
 
 module.exports = screen;

@@ -26,7 +26,7 @@
 .cell_type .type_var {
     padding: 1px 2px;
     color: tomato;
-    background-color: transparent;
+    background-color: white;
     border: 1px solid tomato;
     border-radius: 5px;
 }
@@ -42,6 +42,18 @@
     border: 1px solid #999;
     border-radius: 5px;
     padding: 1px 2px;
+}
+
+.type_app {
+    color: antiquewhite;
+    background-color: lightblue;
+    border: 1px solid lightblue;
+    border-radius: 5px;
+    padding: 1px 2px;
+}
+
+.type_app .app_obj {
+    margin-left: 3px;
 }
 
 .type_record {
@@ -98,4 +110,12 @@
 
 .comp_unknown {
     color: rosybrown;
+}
+
+.comp_list_items .comp_list_item {
+    display: inline;
+}
+
+.comp_list_items .comp_list_item::after {
+    content: ", ";
 }
