@@ -1,6 +1,6 @@
 module Component.Cell exposing
     ( renderBasic
-    , renderAt
+    , render3d
     , renderControllable
     , Time
     , InputId
@@ -10,13 +10,17 @@ module Component.Cell exposing
     )
 
 import Component.TypeType as T
+import Component.ThreeDViewer as ThreeDViewer
 
 import Array
 import Mouse
+import Window
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
+
+import WebGL exposing (Mesh)
 
 type alias Time = Int
 
@@ -34,9 +38,7 @@ type Action
     | NewFrame Time
     | MouseMove Mouse.Position
 
-type alias Controls = {
-    position: Mouse.Position
-}
+viewerSize = Window.Size 500 500
 
 renderBasic : (a -> Html Action) -> T.TypeAtom -> a -> Html Action
 renderBasic valueRenderer atom value =
@@ -45,11 +47,11 @@ renderBasic valueRenderer atom value =
         , [ valueRenderer value ] |> div [ class "cell_value" ]
         ]
 
-renderAt : (a -> Html Action) -> Time -> Controls -> T.TypeAtom -> a -> Html Action
-renderAt valueRenderer t controls atom value =
+render3d : Mouse.Position -> T.TypeAtom -> Mesh ThreeDViewer.Vertex -> Html Action
+render3d position atom mesh =
     div [ class "cell" ]
         [ [ T.render atom ] |> div [ class "cell_type" ]
-        , [ valueRenderer value ] |> div [ class "cell_value" ]
+        , [ ThreeDViewer.withMesh position viewerSize mesh ] |> div [ class "cell_value" ]
         ]
 
 renderControllable : (a -> Html Action) -> T.TypeAtom -> Inputs -> a -> Html Action

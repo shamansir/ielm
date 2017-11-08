@@ -16,10 +16,11 @@ function screen(screenId, types, imports, chunks) {
   }, {});
   return `
 import Html exposing (..)
-import Prelude exposing (..)
 
 ${ imports.map((lines, cellId) => lines.join('\n')).join('\n') }
 
+import Prelude exposing (..)
+import Component.Screen as Screen
 import Component.Cell as Cell
 import Component.TypeType exposing (TypeAtom(..))
 
@@ -32,15 +33,18 @@ ${
   }).join('\n')
 }
 
-type alias Model = Int
-
-view : Model -> Html Cell.Action
-view cellId =
+view : Screen.Model -> Html Cell.Action
+view { cellId, position } =
     case cellId of
 ${
   chunks.map((lines, cellId) => {
     const varName = `cell_${screenId}_${cellId}`;
-    return `        ${cellId} -> t_${varName}`;
+    const component = componentsByVar[varName];
+    if (component.alias !== '3d') {
+      return `        ${cellId} -> t_${varName}`;
+    } else {
+      return `        ${cellId} -> t_${varName} position`;
+    }
   }).join('\n')
 }
         _ -> div [] [ text "Unknown cell type" ]
@@ -50,18 +54,25 @@ ${
     const varName = `cell_${screenId}_${cellId}`;
     const component = componentsByVar[varName];
     const adaptedType = typesByVar[varName];
-    return `t_${varName} =
+    if (component.alias !== '3d') {
+      return `t_${varName} =
     ${varName} |> Cell.renderBasic
-        ${getRenderCallFor(component)}
+      ${getRenderCallFor(component)}
+      ${adaptedType}`;
+    } else {
+      return `t_${varName} position =
+     ${varName} |> Cell.render3d
+        position
         ${adaptedType}`;
+    }
   }).join('\n\n')
 }
 
 main =
     programWithFlags
-        { init = \\flags -> (flags, Cmd.none)
-        , update = \\_ model -> (model, Cmd.none)
-        , subscriptions = \\_ -> Sub.none
+        { init = Screen.init
+        , update = Screen.update
+        , subscriptions = Screen.subscribe
         , view = view
         }
 `.split('\n')

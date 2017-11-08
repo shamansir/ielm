@@ -36,6 +36,12 @@ function match(type) {
             fieldComponents
         );
     }
+    if (mayBeViewedIn3d(type)) {
+        return component(
+            '3d',
+            '3DViewer'
+        );
+    }
     return component('Unknown', 'UnknownType');
 }
 
@@ -70,6 +76,10 @@ function isHtmlType(t) {
 
 function isListType(t) {
     return (t.type === 'app') && (t.subject.def.name === 'List');
+}
+
+function mayBeViewedIn3d(t) {
+    return (t.type === 'app') && (t.subject.def.name === 'Mesh');
 }
 
 function extractListItemType(t) {
