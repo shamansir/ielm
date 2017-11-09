@@ -33,6 +33,9 @@ class Preview {
           embeddedCell.ports.setRefPosition.send({ x: cellElm.offsetLeft, y: cellElm.offsetTop });
         }, 1);
       }
+      if (json.cellCount == 0) {
+        this.empty();
+      }
     } else {
       const codeElm = document.createElement('code');
       codeElm.innerText = json.error;

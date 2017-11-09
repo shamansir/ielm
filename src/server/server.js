@@ -43,6 +43,10 @@ const requestHandler = (request, response) => {
 
     const bodyStr = Buffer.concat(requestBody).toString();
 
+    if (request.url == '/refresh') {
+      revlDocument.refresh();
+    }
+
     if (request.url == '/compile') {
       try {
 

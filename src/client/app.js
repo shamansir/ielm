@@ -25,6 +25,12 @@ const codemirrorOptions = {
   autofocus: true
 };
 
+function refresh() {
+  return fetch('http://localhost:3000/refresh', {
+    method: "GET"
+  });
+}
+
 function compile(content, screenId) {
   return fetch('http://localhost:3000/compile', {
     method: "POST",
@@ -51,6 +57,7 @@ class App {
     this.screenCount = 0;
     this.previews = []; // Screen ID to Preview Element
     this.tabs = []; // Screen ID to Tab Panel
+    refresh();
   }
 
   start(target) {
@@ -114,6 +121,9 @@ class App {
               const Screen = Elm[moduleName];
               previews[screenId].update(screenJson, Screen);
               tabs[screenId].informCompiled();
+              Object.keys(tabs).map((_screenId) => {
+                if (_screenId != screenId) tabs[_screenId].informChanged();
+              });
             }, reject);
           });
         } else throw new Error(screenJson.error);

@@ -6,15 +6,19 @@ const screenTemplate = require('./screen.template.js');
 class RevlDocument {
 
   constructor() {
-    this.imports = []; // [Screen ID] -> [Import ID] -> [String]
-    this.definitions = []; // [Screen ID] -> [Definition ID] -> [String]
-    this.chunks = []; // [Screen ID] -> [Cell ID] -> [String]
+    this.refresh();
 
     this.blockReader = new BlockReader({
       imports: isImport,
       definitions: line => isDefinition(line) || isTypeDeclaration(line),
       chunks: line => !isImport(line) && !isDefinition(line) && !isTypeDeclaration(line)
     })
+  }
+
+  refresh() {
+    this.imports = []; // [Screen ID] -> [Import ID] -> [String]
+    this.definitions = []; // [Screen ID] -> [Definition ID] -> [String]
+    this.chunks = []; // [Screen ID] -> [Cell ID] -> [String]
   }
 
   append(screenId, content) {
