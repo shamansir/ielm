@@ -27,8 +27,13 @@ class Preview {
       }
       for (let cellId = 0; cellId < json.cellCount; cellId++) {
         const cellElm = document.createElement('div');
-        screenElmModule.embed(cellElm, cellId);
         this.elm.appendChild(cellElm);
+        const elmRect = cellElm.getBoundingClientRect();
+        screenElmModule.embed(cellElm, {
+          cellId: cellId,
+          refX: elmRect.left,
+          refY: elmRect.top
+        });
       }
     } else {
       const codeElm = document.createElement('code');

@@ -9,26 +9,39 @@ module Component.Screen exposing
 import Mouse
 
 import Component.Cell as Cell
+import Component.ThreeDViewer as TDV
 
 type alias CellId = Int
 
-type alias Model =
+type alias Flags =
     { cellId: CellId
-    , position: Mouse.Position
+    , refX: Float
+    , refY: Float
     }
 
-init : CellId -> ( Model, Cmd Cell.Action )
-init cellId =
+type alias Model =
+    { cellId: CellId
+    , refPosition: Mouse.Position
+    , position: Maybe Mouse.Position
+    }
+
+init : Flags -> ( Model, Cmd Cell.Action )
+init { cellId, refX, refY } =
     { cellId = cellId
-    , position = Mouse.Position 250 250
+    , refPosition = Mouse.Position (floor refX) (floor refY)
+    , position = Nothing
     } ! []
 
 update : Cell.Action -> Model -> ( Model, Cmd Cell.Action )
 update action model =
     case action of
         Cell.MouseMove position ->
-            { model | position = position } ! []
+            (model |> withAdaptedPosition position) ! []
         _ -> model ! []
+
+withAdaptedPosition : Mouse.Position -> Model -> Model
+withAdaptedPosition position model =
+    { model | position = TDV.adaptPosition model.refPosition position }
 
 subscribe = \_ -> Sub.batch [ Mouse.moves Cell.MouseMove ]
 

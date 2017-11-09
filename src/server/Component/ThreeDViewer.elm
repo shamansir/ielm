@@ -16,36 +16,57 @@ import WebGL.Texture as Texture exposing (Texture, defaultOptions, Error)
 import Window
 
 
+size : Window.Size
+size = Window.Size 500 500
+
+
+center : Mouse.Position
+center = Mouse.Position (size.width // 2) (size.height // 2)
+
+
 type alias Vertex =
     { position : Vec3
     , color : Vec3
     }
 
 
-withMesh : Mouse.Position -> Window.Size -> Mesh Vertex -> Html a
-withMesh position size mesh =
+withMesh : Maybe Mouse.Position -> Mesh Vertex -> Html a
+withMesh position mesh =
     WebGL.toHtml
         [ width size.width
         , height size.height
         , style [ ( "display", "block" ) ]
         ]
-        [ toEntity mesh size position
+        [ toEntity mesh (position |> Maybe.withDefault center)
         ]
 
 
-toEntity : Mesh Vertex -> Window.Size -> Mouse.Position -> Entity
-toEntity mesh { width, height } { x, y } =
+toEntity : Mesh Vertex -> Mouse.Position -> Entity
+toEntity mesh { x, y } =
     WebGL.entity
         vertexShader
         fragmentShader
         mesh
         { perspective =
             perspective
-                (toFloat width)
-                (toFloat height)
+                (toFloat size.width)
+                (toFloat size.height)
                 (toFloat x)
                 (toFloat y)
         }
+
+
+adaptPosition : Mouse.Position -> Mouse.Position -> Maybe Mouse.Position
+adaptPosition ref global =
+    let
+        adaptedX = global.x - ref.x
+        adaptedY = global.y - ref.y
+    in
+        if adaptedX >= 0 && adaptedY >= 0
+        && adaptedX <= size.width && adaptedY <= size.height then
+            Just (Mouse.Position adaptedX adaptedY)
+        else
+            Nothing
 
 
 perspective : Float -> Float -> Float -> Float -> Mat4

@@ -39,8 +39,6 @@ type Action
     | NewFrame Time
     | MouseMove Mouse.Position
 
-viewerSize = Window.Size 500 500
-
 type Raw a = Raw a
 
 raw : a -> Raw a
@@ -53,11 +51,11 @@ renderBasic valueRenderer atom value =
         , [ valueRenderer value ] |> div [ class "cell_value" ]
         ]
 
-render3d : Mouse.Position -> T.TypeAtom -> Mesh ThreeDViewer.Vertex -> Html Action
+render3d : Maybe Mouse.Position -> T.TypeAtom -> Mesh ThreeDViewer.Vertex -> Html Action
 render3d position atom mesh =
     div [ class "cell" ]
         [ [ T.render atom ] |> div [ class "cell_type" ]
-        , [ ThreeDViewer.withMesh position viewerSize mesh ] |> div [ class "cell_value" ]
+        , [ ThreeDViewer.withMesh position mesh ] |> div [ class "cell_value" ]
         ]
 
 renderControllable : (a -> Html Action) -> T.TypeAtom -> Inputs -> a -> Html Action
