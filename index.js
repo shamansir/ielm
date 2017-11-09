@@ -2,4 +2,4 @@
 
 const App = require('./src/client/app.js');
 
-new App().start();
+new App().start(document.body);

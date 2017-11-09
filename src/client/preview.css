@@ -1,5 +1,5 @@
 .preview {
-    margin: 5px;
+    margin: 5px 5px 40px 5px;
     padding: 6px 5px 6px 32px;
     border: 1px solid #aaa;
     border-bottom-color: #999;
@@ -27,4 +27,21 @@
     color: brown;
     font-family: monospace;
     height: auto;
+}
+
+.add-screen {
+    display: inline;
+    margin: 5px;
+    padding: 3px 7px;
+    background-color: green;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid black;
+    box-shadow: inset -1px -0.5px 0px rgba(255,255,255,0.75);
+    transition: background-color 100ms ease-in;
+}
+
+.add-screen:hover {
+    background-color: lightseagreen;
 }

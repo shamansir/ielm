@@ -53,8 +53,9 @@ class App {
     this.tabs = []; // Screen ID to Tab Panel
   }
 
-  start() {
-    this.addScreen(document.body);
+  start(target) {
+    this.addScreen(target);
+    this.addButton(target);
   }
 
   addScreen(target) {
@@ -79,6 +80,20 @@ class App {
     });
 
     this.screenCount++;
+  }
+
+  addButton(target) {
+    const addScreenButton = document.createElement('div');
+    addScreenButton.className = 'add-screen';
+    addScreenButton.innerText = '+';
+
+    addScreenButton.addEventListener('click', () => {
+      addScreenButton.remove();
+      this.addScreen(target);
+      this.addButton(target);
+    });
+
+    target.appendChild(addScreenButton);
   }
 
   onScreenUpdate(cm, screenId) {
