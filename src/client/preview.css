@@ -31,9 +31,10 @@
 
 .add-screen {
     display: inline;
+    font-size: 12px;
     margin: 5px;
-    padding: 3px 7px;
-    background-color: green;
+    padding: 2px 7px 4px 6px;
+    background-color: cadetblue;
     color: white;
     border-radius: 6px;
     cursor: pointer;

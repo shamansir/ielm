@@ -1,4 +1,4 @@
-function prelude(screenId, allImports, definitions, chunks) {
+function prelude(screenId, allImports, allDefinitions, chunks) {
   return [ `module Prelude exposing (..)`, '' ].concat(
     allImports.map((cells, screenId) =>
       cells.map((lines, cellId) => lines.join('\n')).join('\n\n')
@@ -6,7 +6,11 @@ function prelude(screenId, allImports, definitions, chunks) {
   ).concat(
     [ '' ]
   ).concat(
-    definitions.map((lines, cellId) => lines.join('\n'))
+    allDefinitions.map((cells, screenId) =>
+      cells.map(
+        (lines, cellId) => `{- Screen ${screenId} -}\n\n${lines.join('\n')}`
+      ).join('\n\n')
+    )
   ).concat(
     [ '' ]
   ).concat(

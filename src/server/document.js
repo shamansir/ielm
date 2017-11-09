@@ -35,7 +35,7 @@ class RevlDocument {
 
   buildPreludeFor(screenId) {
     return preludeTemplate(screenId, this.imports,
-                           this.definitions[screenId], this.chunks[screenId]);
+                           this.definitions, this.chunks[screenId]);
   }
 
   buildScreenFor(screenId, moduleName, types) {
