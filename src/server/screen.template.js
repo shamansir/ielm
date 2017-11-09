@@ -21,7 +21,7 @@ ${ imports.map((lines, cellId) => lines.join('\n')).join('\n') }
 
 import Prelude exposing (..)
 import Component.Screen as Screen
-import Component.Cell as Cell
+import Component.Cell as Cell exposing (raw)
 import Component.TypeType exposing (TypeAtom(..))
 
 ${

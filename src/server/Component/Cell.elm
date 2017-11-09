@@ -2,6 +2,7 @@ module Component.Cell exposing
     ( renderBasic
     , render3d
     , renderControllable
+    , raw
     , Time
     , InputId
     , Input(..)
@@ -39,6 +40,11 @@ type Action
     | MouseMove Mouse.Position
 
 viewerSize = Window.Size 500 500
+
+type Raw a = Raw a
+
+raw : a -> Raw a
+raw v = Raw v
 
 renderBasic : (a -> Html Action) -> T.TypeAtom -> a -> Html Action
 renderBasic valueRenderer atom value =
