@@ -56,17 +56,19 @@ toEntity mesh { x, y } =
         }
 
 
-adaptPosition : Mouse.Position -> Mouse.Position -> Maybe Mouse.Position
-adaptPosition ref global =
-    let
-        adaptedX = global.x - ref.x
-        adaptedY = global.y - ref.y
-    in
-        if adaptedX >= 0 && adaptedY >= 0
-        && adaptedX <= size.width && adaptedY <= size.height then
-            Just (Mouse.Position adaptedX adaptedY)
-        else
-            Nothing
+adaptPosition : Maybe Mouse.Position -> Mouse.Position -> Maybe Mouse.Position
+adaptPosition maybeRef global =
+    maybeRef |> Maybe.andThen (\ref ->
+        let
+            adaptedX = global.x - ref.x
+            adaptedY = global.y - ref.y
+        in
+            if adaptedX >= 0 && adaptedY >= 0
+            && adaptedX <= size.width && adaptedY <= size.height then
+                Just (Mouse.Position adaptedX adaptedY)
+            else
+                Nothing
+    )
 
 
 perspective : Float -> Float -> Float -> Float -> Mat4

@@ -1,7 +1,7 @@
 const matchComponent = require('./match-component.js');
 const adaptType = require('./adapt-type.js');
 
-function screen(screenId, types, imports, chunks) {
+function screen(screenId, moduleName, types, imports, chunks) {
   const componentsByVar = types.reduce((map, current) => {
     if (current.name.indexOf('cell_') == 0) {
       map[current.name] = matchComponent(current.value);
@@ -15,6 +15,8 @@ function screen(screenId, types, imports, chunks) {
     return map;
   }, {});
   return `
+port module ${moduleName} exposing (..)
+
 import Html exposing (..)
 
 ${ imports.map((lines, cellId) => lines.join('\n')).join('\n') }
@@ -68,14 +70,18 @@ ${
   }).join('\n\n')
 }
 
+port setRefPosition : ({ x: Int, y: Int } -> x) -> Sub x
+
+subscribe = \\model -> Sub.batch (Screen.subscribe model ++ [ setRefPosition Cell.SetRefPosition ])
+
 main =
     programWithFlags
         { init = Screen.init
         , update = Screen.update
-        , subscriptions = Screen.subscribe
+        , subscriptions = subscribe
         , view = view
         }
-`.split('\n')
+`
 }
 
 function getRenderCallFor(component) {

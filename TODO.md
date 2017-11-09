@@ -12,8 +12,11 @@
 * The ability to add more screens;
 * Tabs should display the condition of the code (Outdated vs Compiling vs Compiled/Up-to-date);
 * Keyboard shortcuts in the interface; Ability to quickly switch Screens with some hotkey and/or number key;
+* Expose only required things from all used or generated Elm modules;
 
 ## Long stretch goals
 
-* Zoom and some other pretty options for 3D-viewer;
+* Zoom, reset position and some other pretty options for 3D-viewer;
 * Better error display;
+* Listen for mouse movement only if Cell has 3DViewer inside;
+* Consider other ways of chosing a version of new Screen (i.e. use hash numbers or milliseconds for versioning);

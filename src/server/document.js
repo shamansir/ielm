@@ -38,8 +38,8 @@ class RevlDocument {
                            this.definitions[screenId], this.chunks[screenId]);
   }
 
-  buildScreenFor(screenId, types) {
-    return screenTemplate(screenId, types,
+  buildScreenFor(screenId, moduleName, types) {
+    return screenTemplate(screenId, moduleName, types,
                           this.imports[screenId], this.chunks[screenId]);
   }
 

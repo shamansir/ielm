@@ -36,8 +36,9 @@ type alias Inputs = Array.Array Input
 
 type Action
     = UpdateInput InputId Input
-    | NewFrame Time
+    -- | NewFrame Time
     | MouseMove Mouse.Position
+    | SetRefPosition Mouse.Position
 
 type Raw a = Raw a
 

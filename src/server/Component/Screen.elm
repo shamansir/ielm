@@ -1,4 +1,4 @@
-module Component.Screen exposing
+port module Component.Screen exposing
     ( CellId
     , Model
     , init
@@ -15,20 +15,18 @@ type alias CellId = Int
 
 type alias Flags =
     { cellId: CellId
-    , refX: Float
-    , refY: Float
     }
 
 type alias Model =
     { cellId: CellId
-    , refPosition: Mouse.Position
+    , refPosition: Maybe Mouse.Position
     , position: Maybe Mouse.Position
     }
 
 init : Flags -> ( Model, Cmd Cell.Action )
-init { cellId, refX, refY } =
+init { cellId } =
     { cellId = cellId
-    , refPosition = Mouse.Position (floor refX) (floor refY)
+    , refPosition = Nothing
     , position = Nothing
     } ! []
 
@@ -37,11 +35,13 @@ update action model =
     case action of
         Cell.MouseMove position ->
             (model |> withAdaptedPosition position) ! []
+        Cell.SetRefPosition refPosition ->
+            { model | refPosition = Just refPosition } ! []
         _ -> model ! []
 
 withAdaptedPosition : Mouse.Position -> Model -> Model
 withAdaptedPosition position model =
     { model | position = TDV.adaptPosition model.refPosition position }
 
-subscribe = \_ -> Sub.batch [ Mouse.moves Cell.MouseMove ]
+subscribe = \_ -> [ Mouse.moves Cell.MouseMove ]
 

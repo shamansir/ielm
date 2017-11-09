@@ -28,12 +28,10 @@ class Preview {
       for (let cellId = 0; cellId < json.cellCount; cellId++) {
         const cellElm = document.createElement('div');
         this.elm.appendChild(cellElm);
-        const elmRect = cellElm.getBoundingClientRect();
-        screenElmModule.embed(cellElm, {
-          cellId: cellId,
-          refX: elmRect.left,
-          refY: elmRect.top
-        });
+        const embeddedCell = screenElmModule.embed(cellElm, { cellId });
+        setTimeout(() => {
+          embeddedCell.ports.setRefPosition.send({ x: cellElm.offsetLeft, y: cellElm.offsetTop });
+        }, 1);
       }
     } else {
       const codeElm = document.createElement('code');
@@ -41,6 +39,8 @@ class Preview {
       this.elm.appendChild(codeElm);
     }
   }
+
+
 
   error(error) {
     this.elm.className = 'preview preview--error';

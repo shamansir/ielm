@@ -1,5 +1,5 @@
 function prelude(screenId, allImports, definitions, chunks) {
-  return [].concat(
+  return [ `module Prelude exposing (..)`, '' ].concat(
     allImports.map((cells, screenId) =>
       cells.map((lines, cellId) => lines.join('\n')).join('\n\n')
     )
@@ -17,7 +17,7 @@ ${
 }
   `
     })
-  )
+  ).join('\n')
 }
 
 module.exports = prelude;

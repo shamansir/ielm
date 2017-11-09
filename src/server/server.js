@@ -13,7 +13,7 @@ const RevlDocument = require('./document.js');
 const revlDocument = new RevlDocument();
 
 const compile = (config, elmLines, moduleName) => {
-  return new ElmRepl(config).parseLines(elmLines, moduleName)
+  return new ElmRepl(config).parseModuleText(elmLines, moduleName)
 }
 
 const adaptConfig = (bodyJson) => {
@@ -53,7 +53,11 @@ const requestHandler = (request, response) => {
         const screenContent = bodyJson.document;
         const initialDir = process.cwd();
 
-        let version;
+        const prevVersion = versions[screenId] || 0;
+        const version = prevVersion + 1;
+
+        const prevModuleName = `Screen${screenId}_v${prevVersion}`;
+        const moduleName = `Screen${screenId}_v${version}`;
 
         if (screenContent) {
           revlDocument.append(screenId, screenContent);
@@ -65,8 +69,6 @@ const requestHandler = (request, response) => {
             const cellCount = revlDocument.getCellCount(screenId);
             process.chdir(elmReplConfig.workDir);
 
-            const prevVersion = versions[screenId] || 0;
-            const prevModuleName = `Screen${screenId}_v${prevVersion}`
             const prevScreenElmFileName = `./${prevModuleName}.elm`;
             const prevScreenJsFileName = `./${prevModuleName}.js`;
             if (fs.existsSync(prevScreenElmFileName)) {
@@ -76,16 +78,10 @@ const requestHandler = (request, response) => {
               fs.unlinkSync(prevScreenJsFileName);
             };
 
-            // FIXME: Use msec as a version?
-            version = prevVersion + 1;
-            const moduleName = `Screen${screenId}_v${version}`;
             const screenElmFileName = `./${moduleName}.elm`;
             const screenJsFileName = `./${moduleName}.js`;
             fs.writeFileSync(screenElmFileName,
-              // FIXME expose only required variables
-              [ `module ${moduleName} exposing (..)` ].concat([' ']).concat(
-                revlDocument.buildScreenFor(screenId, preludeJson.types)
-              ).join('\n') + '\n'
+              revlDocument.buildScreenFor(screenId, moduleName, preludeJson.types)
             );
             cp.execSync('elm-make --yes ' + screenElmFileName + ' --output ' + screenJsFileName,
                 { cwd: process.cwd() });
@@ -99,7 +95,7 @@ const requestHandler = (request, response) => {
             response.end(JSON.stringify({ error: err.message }));
           }).then(() => { // a.k.a. finally
             process.chdir(initialDir);
-            versions[screenId] = version;
+            versions[screenId] = version; // FIXME: do it only if everything was successful
           });
         } else {
           response.end(JSON.stringify({ error: "Empty Body" }));
