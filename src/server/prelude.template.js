@@ -15,7 +15,9 @@ function prelude(screenId, allImports, allDefinitions, chunks) {
     [ '' ]
   ).concat(
     chunks.map((lines, cellId) => {
-      return `cell_${screenId}_${cellId} =
+      return `{- Screen ${screenId}, Cell ${cellId} -}
+
+cell_${screenId}_${cellId} =
 ${
   lines.map(line => `   ${line}`).join('\n')
 }

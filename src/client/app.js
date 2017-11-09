@@ -73,10 +73,15 @@ class App {
     codemirrorInstance.on('keypress', (cm, event) => {
       if (event.keyCode == 13 && event.shiftKey) {
         previewInstance.busy();
+        tabPanelInstance.informCompiling();
         this.onScreenUpdate(cm, screenId);
         event.stopPropagation();
         event.preventDefault();
       }
+    });
+
+    codemirrorInstance.on('change', () => {
+      tabPanelInstance.informChanged();
     });
 
     this.screenCount++;
@@ -98,6 +103,7 @@ class App {
 
   onScreenUpdate(cm, screenId) {
     const previews = this.previews;
+    const tabs = this.tabs;
     compile(cm.getValue(), screenId)
       .then(function(screenJson) {
         if (!screenJson.error) {
@@ -107,6 +113,7 @@ class App {
             importScript(`./build/${moduleName}.js`, () => {
               const Screen = Elm[moduleName];
               previews[screenId].update(screenJson, Screen);
+              tabs[screenId].informCompiled();
             }, reject);
           });
         } else throw new Error(screenJson.error);
