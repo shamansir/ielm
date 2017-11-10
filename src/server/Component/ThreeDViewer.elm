@@ -4,7 +4,7 @@ module Component.ThreeDViewer exposing
     , adaptPosition
     , size
     , Vertex
-    , teapot
+    , icosahedron
     , defaultVertexShader
     , defaultFragmentShader
     )
@@ -51,12 +51,20 @@ type alias Uniforms u =
     }
 
 
-teapot =
-    WebGL.triangles
-        [ ( vx 0 0 0
-          , vx 1 2 0
-          , vx 1 -1 0
-          )
+icosahedron =
+    WebGL.triangleStrip
+        [ vx -0.26286500 0.0000000 0.42532500
+        , vx 0.26286500 0.0000000 0.42532500
+        , vx -0.26286500 0.0000000 -0.42532500
+        , vx 0.26286500 0.0000000 -0.42532500
+        , vx 0.0000000 0.42532500 0.26286500
+        , vx 0.0000000 0.42532500 -0.26286500
+        , vx 0.0000000 -0.42532500 0.26286500
+        , vx 0.0000000 -0.42532500 -0.26286500
+        , vx 0.42532500 0.26286500 0.0000000
+        , vx -0.42532500 0.26286500 0.0000000
+        , vx 0.42532500 -0.26286500 0.0000000
+        , vx -0.42532500 -0.26286500 0.0000000
         ]
 
 
