@@ -1,6 +1,7 @@
 module Component.Cell exposing
     ( renderBasic
-    , render3d
+    , render3dMesh
+    , renderRawMesh
     , renderControllable
     , raw
     , Time
@@ -52,12 +53,19 @@ renderBasic valueRenderer atom value =
         , [ valueRenderer value ] |> div [ class "cell_value" ]
         ]
 
-render3d : Maybe Mouse.Position -> T.TypeAtom -> Mesh (ThreeDViewer.Vertex v) -> Html Action
-render3d position atom mesh =
-    div [ class "cell" ]
-        [ [ T.render atom ] |> div [ class "cell_type" ]
-        , [ ThreeDViewer.withMesh position mesh ] |> div [ class "cell_value" ]
-        ]
+render3dMesh : Maybe Mouse.Position -> T.TypeAtom -> Mesh (ThreeDViewer.Vertex v) -> Html Action
+render3dMesh position atom mesh =
+    renderBasic (ThreeDViewer.withMesh position) atom mesh
+    -- div [ class "cell" ]
+    --     [ [ T.render atom ] |> div [ class "cell_type" ]
+    --     , [ ThreeDViewer.withMesh position mesh ] |> div [ class "cell_value" ]
+    --     ]
+
+
+renderRawMesh : T.TypeAtom -> Mesh (ThreeDViewer.Vertex v) -> Html Action
+renderRawMesh atom mesh =
+    renderBasic (\_ -> span [] []) atom mesh
+
 
 renderControllable : (a -> Html Action) -> T.TypeAtom -> Inputs -> a -> Html Action
 renderControllable valueRenderer atom inputs value =

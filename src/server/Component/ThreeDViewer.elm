@@ -1,4 +1,9 @@
-module Component.ThreeDViewer exposing (..)
+module Component.ThreeDViewer exposing
+    ( withMesh
+    , adaptPosition
+    , size
+    , Vertex
+    )
 
 {-
     Loosely based on https://github.com/elm-community/webgl/blob/master/examples/thwomp.elm
@@ -30,10 +35,28 @@ type alias ColoredVertex v =
     , color : Vec3
     }
 
+
 type alias Vertex v =
     { v
     | position : Vec3
     }
+
+
+type alias Uniforms u =
+    { u
+    | perspective : Mat4
+    }
+
+
+-- type alias AnyMesh v = Mesh (Vertex v)
+-- type alias AnyShader v u p = Shader (Vertex v) (Uniforms u) p
+-- type alias AnyEntity v u p = (AnyMesh v) (AnyShader v u p) (AnyShader v u p)
+
+-- type ViewKind
+--     = AMesh (AnyMesh v)
+--     | AShader (AnyShader v u p)
+--     | AnEntity (AnyEntity v u p)
+--     | RawMesh (AnyMesh v)
 
 withMesh : Maybe Mouse.Position -> Mesh (Vertex v) -> Html a
 withMesh position mesh =
@@ -93,12 +116,7 @@ perspective width height x y =
 
 
 
-type alias Uniforms =
-    { perspective : Mat4
-    }
-
-
-coloredVertexShader : Shader (ColoredVertex v) Uniforms { vcolor : Vec3 }
+coloredVertexShader : Shader (ColoredVertex v) (Uniforms u) { vcolor : Vec3 }
 coloredVertexShader =
     [glsl|
 
@@ -115,7 +133,7 @@ coloredVertexShader =
     |]
 
 
-coloredFragmentShader : Shader {} Uniforms { vcolor : Vec3 }
+coloredFragmentShader : Shader {} (Uniforms u) { vcolor : Vec3 }
 coloredFragmentShader =
     [glsl|
 
@@ -128,7 +146,7 @@ coloredFragmentShader =
 
     |]
 
-defaultVertexShader : Shader (Vertex v) Uniforms {}
+defaultVertexShader : Shader (Vertex v) (Uniforms u) {}
 defaultVertexShader =
     [glsl|
 
@@ -142,7 +160,7 @@ defaultVertexShader =
     |]
 
 
-defaultFragmentShader : Shader {} Uniforms {}
+defaultFragmentShader : Shader {} (Uniforms u) {}
 defaultFragmentShader =
     [glsl|
 

@@ -44,7 +44,9 @@ function match(type) {
     if (mayBeViewedIn3d(type)) {
         return component(
             '3d',
-            'ThreeDViewer'
+            'ThreeDViewer',
+            [],
+            'mesh'
         );
     }
     return component('Unknown', 'UnknownType');
@@ -104,8 +106,7 @@ function extractRecordFieldData(t) {
 }
 
 function extractRawInnerType(t) {
-    // TODO
-    return t;
+    return t.object[0];
 }
 
 module.exports = match;

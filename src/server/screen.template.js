@@ -1,5 +1,6 @@
 const matchComponent = require('./match-component.js');
 const adaptType = require('./adapt-type.js');
+const makeVarCall = require('./var-call.template.js');
 
 function screen(screenId, moduleName, types, imports, chunks) {
   const componentsByVar = types.reduce((map, current) => {
@@ -56,17 +57,7 @@ ${
     const varName = `cell_${screenId}_${cellId}`;
     const component = componentsByVar[varName];
     const adaptedType = typesByVar[varName];
-    if (component.alias !== '3d') {
-      return `t_${varName} =
-    ${varName} |> Cell.renderBasic
-      ${getRenderCallFor(component)}
-      ${adaptedType}`;
-    } else {
-      return `t_${varName} position =
-     ${varName} |> Cell.render3d
-        position
-        ${adaptedType}`;
-    }
+    return makeVarCall(varName, adaptedType, component);
   }).join('\n\n')
 }
 
@@ -82,16 +73,6 @@ main =
         , view = view
         }
 `
-}
-
-function getRenderCallFor(component) {
-  if (component.alias === 'list') {
-    return `(${component.base}.render (${getRenderCallFor(component.payload)}))`;
-  } else if (component.alias === 'record') {
-    return `${component.base}.render (\\_ -> span [ ] [ text "N/A" ])`; // TODO
-  } else {
-    return `${component.base}.render`;
-  }
 }
 
 module.exports = screen;
