@@ -32,7 +32,9 @@ type alias Vertex =
 
 withMesh : Maybe Mouse.Position -> Mesh Vertex -> Html a
 withMesh position mesh =
-    WebGL.toHtml
+    WebGL.toHtmlWith
+        [ WebGL.depth 1
+        ]
         [ width size.width
         , height size.height
         , style [ ( "display", "block" ) ]
@@ -75,7 +77,8 @@ perspective : Float -> Float -> Float -> Float -> Mat4
 perspective width height x y =
     let
         eye =
-            vec3 (0.5 - x / width) -(0.5 - y / height) 1
+            vec3 (0.5 - x / width) -(4.0 - y / height * 8) (cos (2.0 - x / width * 4))
+            --vec3 (0.5 - x / width) -(0.5 - y / height) 1
                 |> Vec3.normalize
                 |> Vec3.scale 6
     in

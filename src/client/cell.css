@@ -17,10 +17,13 @@
 
 .cell_type .type_atom {
     padding: 1px 2px;
-    color: white;
-    background-color: #ccc;
+    /* color: white; */
+    color: slategray;
+    /* background-color: #ccc; */
+    background-color: #eee;
     border: 1px solid #ccc;
     border-radius: 5px;
+    padding: 1px 2px;
 }
 
 .cell_type .type_var {
