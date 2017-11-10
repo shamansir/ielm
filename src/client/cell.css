@@ -125,10 +125,34 @@
 
 .comp_list_items .comp_list_item,
 .comp_list_items .comp_list,
-.comp_list_items .comp_list_items {
+.comp_list_items .comp_list_items,
+.comp_list_items .comp_tuple_item,
+.comp_list_items .comp_tuple,
+.comp_list_items .comp_tuple_items {
     display: inline;
 }
 
 .comp_list_items .comp_list_item::after {
+    content: ", ";
+}
+
+.comp_tuple_items::before {
+    content: "( ";
+}
+
+.comp_tuple_items::after {
+    content: " )";
+}
+
+.comp_tuple_items .comp_list_item,
+.comp_tuple_items .comp_list,
+.comp_tuple_items .comp_list_items,
+.comp_tuple_items .comp_tuple_item,
+.comp_tuple_items .comp_tuple,
+.comp_tuple_items .comp_tuple_items {
+    display: inline;
+}
+
+.comp_tuple_items .comp_tuple_item::after {
     content: ", ";
 }

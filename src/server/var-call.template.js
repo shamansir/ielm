@@ -25,11 +25,14 @@ function getRender3DCallFor(component) {
 
 function getRenderCallFor(component) {
     if (component.alias === 'list') {
-      return `(${component.base}.render (${getRenderCallFor(component.payload)}))`;
+        return `(${component.base}.render (${getRenderCallFor(component.payload)}))`;
+    } else if (component.alias === 'tuple') {
+        return `(${component.base}.render${component.payload.arity}
+        ( (${component.payload.items.map(getRenderCallFor).join('), (')}) ))`;
     } else if (component.alias === 'record') {
-      return `${component.base}.render (\\_ -> span [ ] [ text "N/A" ])`; // TODO
+        return `${component.base}.render (\\_ -> span [ ] [ text "N/A" ])`; // TODO
     } else {
-      return `${component.base}.render`;
+        return `${component.base}.render`;
     }
 }
 

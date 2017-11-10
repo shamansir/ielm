@@ -1,7 +1,10 @@
 // See https://github.com/shamansir/node-elm-repl/blob/master/Types.md for reference
 
 function stringify(t) {
-    if (t.type == 'type') return `(Name "${t.def.name}")`;
+    if (t.type == 'type') {
+        if (t.def.name.indexOf('_Tuple') === 0) return `(Name "Tuple")`;
+        return `(Name "${t.def.name}")`;
+    }
     if (t.type == 'var') return `(Variable "${t.name}")`;
     if (t.type == 'lambda') return `(Lambda ${stringify(t.left)} ${stringify(t.right)})`;
     if (t.type == 'app') return `(Application ${stringify(t.subject)} [ ${t.object.map(stringify).join(', ')} ])`;

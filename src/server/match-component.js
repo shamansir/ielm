@@ -16,6 +16,22 @@ function match(type) {
         const itemComp = match(extractListItemType(type));
         return component('list', 'ListType', itemComp.requirements, itemComp);
     }
+    if (isTupleType(type)) {
+        const itemComponents = extractTupleItemTypes(type).map(match);
+        const itemRequirements = itemComponents.map(
+            (itemData) => itemData.requirements
+        ).reduce( // a.k.a flatMap
+            (allRequirements, itemRequirements) => allRequirements.concat(itemRequirements),
+        []);
+        return component(
+            'tuple',
+            'TupleType',
+            itemRequirements,
+            { arity: getTupleArity(type),
+              items: itemComponents
+            }
+        );
+    }
     if (isRecordType(type)) {
         const fieldData = extractRecordFieldData(type);
         const fieldComponents = fieldData.map((fieldData) => {
@@ -63,7 +79,7 @@ function isStringType(t) {
 }
 
 function isStringCompatibleType(t) {
-    if ((t.type === 'var') && (t.name === 'number')) return true;
+    if ((t.type === 'var') && (t.name.indexOf('number') === 0)) return true;
     return ((t.type === 'type') &&
             ((t.def.name === 'Int') ||
              (t.def.name === 'Float') ||
@@ -78,6 +94,10 @@ function isHtmlType(t) {
 
 function isListType(t) {
     return (t.type === 'app') && (t.subject.def.name === 'List');
+}
+
+function isTupleType(t) {
+    return ((t.type === 'app') && (t.subject.def.name.indexOf('Tuple') === 1));
 }
 
 function mayBeViewedIn3d(t) {
@@ -97,9 +117,17 @@ function extractRecordFieldData(t) {
     return t.list[0].fields;
 }
 
+function extractTupleItemTypes(t) {
+    return t.object;
+}
+
 function get3dSubType(t) {
     if (t.subject && t.subject.def && t.subject.def.name === 'Mesh') return 'mesh';
     if (t.def && t.def.name === 'Entity') return 'entity';
+}
+
+function getTupleArity(t) {
+    return parseInt(t.subject.def.name.substring(6));
 }
 
 module.exports = match;

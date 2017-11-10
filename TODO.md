@@ -3,6 +3,7 @@
 * Get local coordinates for mouse movement in 3D viewer;
 * Tuples;
 * Records;
+* Arrays;
 * Ensure type aliases to work, may be also display the alias name;
 * Controlling some function results with inputs (some code is already in the `Cell`/`Tryings`), also: https://ellie-app.com/jF6N5Ksxta1/4);
 * Plots for some functions;
