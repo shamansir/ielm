@@ -52,7 +52,7 @@ renderBasic valueRenderer atom value =
         , [ valueRenderer value ] |> div [ class "cell_value" ]
         ]
 
-render3d : Maybe Mouse.Position -> T.TypeAtom -> Mesh ThreeDViewer.Vertex -> Html Action
+render3d : Maybe Mouse.Position -> T.TypeAtom -> Mesh (ThreeDViewer.Vertex v) -> Html Action
 render3d position atom mesh =
     div [ class "cell" ]
         [ [ T.render atom ] |> div [ class "cell_type" ]

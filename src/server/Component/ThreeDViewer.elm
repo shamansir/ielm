@@ -24,13 +24,18 @@ center : Mouse.Position
 center = Mouse.Position (size.width // 2) (size.height // 2)
 
 
-type alias Vertex =
-    { position : Vec3
+type alias ColoredVertex v =
+    { v
+    | position : Vec3
     , color : Vec3
     }
 
+type alias Vertex v =
+    { v
+    | position : Vec3
+    }
 
-withMesh : Maybe Mouse.Position -> Mesh Vertex -> Html a
+withMesh : Maybe Mouse.Position -> Mesh (Vertex v) -> Html a
 withMesh position mesh =
     WebGL.toHtmlWith
         [ WebGL.depth 1
@@ -43,11 +48,11 @@ withMesh position mesh =
         ]
 
 
-toEntity : Mesh Vertex -> Mouse.Position -> Entity
+toEntity : Mesh (Vertex v) -> Mouse.Position -> Entity
 toEntity mesh { x, y } =
     WebGL.entity
-        vertexShader
-        fragmentShader
+        defaultVertexShader
+        defaultFragmentShader
         mesh
         { perspective =
             perspective
@@ -93,8 +98,8 @@ type alias Uniforms =
     }
 
 
-vertexShader : Shader Vertex Uniforms { vcolor : Vec3 }
-vertexShader =
+coloredVertexShader : Shader (ColoredVertex v) Uniforms { vcolor : Vec3 }
+coloredVertexShader =
     [glsl|
 
         attribute vec3 position;
@@ -110,8 +115,8 @@ vertexShader =
     |]
 
 
-fragmentShader : Shader {} Uniforms { vcolor : Vec3 }
-fragmentShader =
+coloredFragmentShader : Shader {} Uniforms { vcolor : Vec3 }
+coloredFragmentShader =
     [glsl|
 
         precision mediump float;
@@ -119,6 +124,32 @@ fragmentShader =
 
         void main () {
           gl_FragColor = vec4(vcolor, 1.0);
+        }
+
+    |]
+
+defaultVertexShader : Shader (Vertex v) Uniforms {}
+defaultVertexShader =
+    [glsl|
+
+        attribute vec3 position;
+        uniform mat4 perspective;
+
+        void main () {
+          gl_Position = perspective * vec4(position, 1.0);
+        }
+
+    |]
+
+
+defaultFragmentShader : Shader {} Uniforms {}
+defaultFragmentShader =
+    [glsl|
+
+        precision mediump float;
+
+        void main () {
+          gl_FragColor = vec4(vec3(0.7, 0.7, 0.7), 1.0);
         }
 
     |]
