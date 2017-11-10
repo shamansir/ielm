@@ -3,6 +3,7 @@
 var unique = require('array-unique').immutable;
 
 function match(type) {
+    console.log(type);
     if (isStringType(type)) {
         return component('string', 'StringType');
     }
@@ -41,7 +42,7 @@ function match(type) {
             '3d',
             'ThreeDViewer',
             [],
-            'mesh'
+            get3dSubType(type)
         );
     }
     return component('Unknown', 'UnknownType');
@@ -81,7 +82,8 @@ function isListType(t) {
 }
 
 function mayBeViewedIn3d(t) {
-    return (t.type === 'app') && (t.subject.def.name === 'Mesh');
+    return ((t.type === 'app') && (t.subject.def.name === 'Mesh')) ||
+           ((t.type === 'type') && (t.def.name === 'Entity'));
 }
 
 function extractListItemType(t) {
@@ -96,8 +98,9 @@ function extractRecordFieldData(t) {
     return t.list[0].fields;
 }
 
-function extractRawInnerType(t) {
-    return t.object[0];
+function get3dSubType(t) {
+    if (t.subject && t.subject.def && t.subject.def.name === 'Mesh') return 'mesh';
+    if (t.def && t.def.name === 'Entity') return 'entity';
 }
 
 module.exports = match;

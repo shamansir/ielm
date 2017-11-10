@@ -1,6 +1,7 @@
 module Component.Cell exposing
     ( renderBasic
-    , render3dMesh
+    , render3dMeshAt
+    , renderEntityAt
     , renderControllable
     , Time
     , InputId
@@ -20,7 +21,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 
-import WebGL exposing (Mesh)
+import WebGL exposing (Mesh, Entity)
 
 type alias Time = Int
 
@@ -48,9 +49,15 @@ renderBasic valueRenderer atom value =
         ]
 
 
-render3dMesh : Maybe Mouse.Position -> T.TypeAtom -> Mesh (ThreeDViewer.Vertex v) -> Html Action
-render3dMesh position atom mesh =
-    renderBasic (ThreeDViewer.withMesh position) atom mesh
+render3dMeshAt : Maybe Mouse.Position -> T.TypeAtom -> Mesh (ThreeDViewer.Vertex v) -> Html Action
+render3dMeshAt position atom mesh =
+    mesh |> renderBasic (ThreeDViewer.withMeshAt position) atom
+
+
+renderEntityAt : Maybe Mouse.Position -> T.TypeAtom -> Entity -> Html Action
+renderEntityAt position atom entity =
+    -- FIXME: add ability to avoid specifying perspective
+    (\_ -> entity) |> renderBasic (ThreeDViewer.withEntityAt position) atom
 
 
 renderControllable : (a -> Html Action) -> T.TypeAtom -> Inputs -> a -> Html Action

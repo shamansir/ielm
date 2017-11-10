@@ -14,7 +14,9 @@ function varCall(varName, typeDef, component) {
 
 function getRender3DCallFor(component) {
     if (component.payload === 'mesh') {
-        return 'render3dMesh';
+        return 'render3dMeshAt';
+    } else if (component.payload === 'entity') {
+        return 'renderEntityAt';
     } else {
         return 'renderBasic';
     }

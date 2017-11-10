@@ -14,10 +14,12 @@
 * Keyboard shortcuts in the interface; Ability to quickly switch Screens with some hotkey and/or number key;
 * Expose only required things from all used or generated Elm modules;
 * Subscribe to mouseMove only when cell is 3D;
+* Add ability to avoid specifying perspective when using default shader;
 
 ## Long stretch goals
 
 * Zoom, reset position and some other pretty options for 3D-viewer;
+* Support textures in 3D-viewer;
 * Better error display;
 * Listen for mouse movement only if Cell has 3DViewer inside;
 * Consider other ways of chosing a version of new Screen (i.e. use hash numbers or milliseconds for versioning);

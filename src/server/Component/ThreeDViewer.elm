@@ -1,8 +1,12 @@
 module Component.ThreeDViewer exposing
-    ( withMesh
+    ( withMeshAt
+    , withEntityAt
     , adaptPosition
     , size
     , Vertex
+    , teapot
+    , defaultVertexShader
+    , defaultFragmentShader
     )
 
 {-
@@ -20,6 +24,7 @@ import WebGL exposing (Mesh, Shader, Entity)
 import WebGL.Texture as Texture exposing (Texture, defaultOptions, Error)
 import Window
 
+import Component.Teapot as Teapot
 
 size : Window.Size
 size = Window.Size 500 500
@@ -48,6 +53,10 @@ type alias Uniforms u =
     }
 
 
+teapot =
+    WebGL.triangleFan Teapot.vertices
+
+
 -- type alias AnyMesh v = Mesh (Vertex v)
 -- type alias AnyShader v u p = Shader (Vertex v) (Uniforms u) p
 -- type alias AnyEntity v u p = (AnyMesh v) (AnyShader v u p) (AnyShader v u p)
@@ -58,8 +67,8 @@ type alias Uniforms u =
 --     | AnEntity (AnyEntity v u p)
 --     | RawMesh (AnyMesh v)
 
-withMesh : Maybe Mouse.Position -> Mesh (Vertex v) -> Html a
-withMesh position mesh =
+withMeshAt : Maybe Mouse.Position -> Mesh (Vertex v) -> Html a
+withMeshAt position mesh =
     WebGL.toHtmlWith
         [ WebGL.depth 1
         ]
@@ -67,12 +76,35 @@ withMesh position mesh =
         , height size.height
         , style [ ( "display", "block" ) ]
         ]
-        [ toEntity mesh (position |> Maybe.withDefault center)
+        [ mesh |> toEntity (position |> Maybe.withDefault center)
         ]
 
 
-toEntity : Mesh (Vertex v) -> Mouse.Position -> Entity
-toEntity mesh { x, y } =
+withEntityAt : Maybe Mouse.Position -> ( { perspective: Mat4 } -> Entity ) -> Html a
+withEntityAt position almostEntity =
+    let
+        { x, y } = position |> Maybe.withDefault center
+    in
+        WebGL.toHtmlWith
+            [ WebGL.depth 1
+            ]
+            [ width size.width
+            , height size.height
+            , style [ ( "display", "block" ) ]
+            ]
+            [ almostEntity
+                { perspective =
+                    perspective
+                        (toFloat size.width)
+                        (toFloat size.height)
+                        (toFloat x)
+                        (toFloat y)
+                }
+            ]
+
+
+toEntity : Mouse.Position -> Mesh (Vertex v) -> Entity
+toEntity { x, y } mesh =
     WebGL.entity
         defaultVertexShader
         defaultFragmentShader

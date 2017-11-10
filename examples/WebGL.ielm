@@ -5,7 +5,7 @@ import Math.Matrix4 as Mat4 exposing (Mat4)
 import Math.Vector3 as Vec3 exposing (vec3, Vec3)
 import Time exposing (Time)
 import WebGL exposing (Mesh, Shader)
-
+import Component.ThreeDViewer exposing (teapot, defaultVertexShader, defaultFragmentShader)
 
 main : Program Never Time Time
 main =
@@ -96,3 +96,9 @@ view 790
 perspective 790
 
 mesh
+
+teapot
+
+WebGL.entity vertexShader fragmentShader mesh { perspective = perspective 790 }
+
+WebGL.entity defaultVertexShader defaultFragmentShader teapot { perspective = perspective 20 }
