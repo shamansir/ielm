@@ -3,7 +3,6 @@
 var unique = require('array-unique').immutable;
 
 function match(type) {
-    console.log(type);
     if (isStringType(type)) {
         return component('string', 'StringType');
     }

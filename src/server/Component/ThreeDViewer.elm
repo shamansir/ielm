@@ -24,8 +24,6 @@ import WebGL exposing (Mesh, Shader, Entity)
 import WebGL.Texture as Texture exposing (Texture, defaultOptions, Error)
 import Window
 
-import Component.Teapot as Teapot
-
 size : Window.Size
 size = Window.Size 500 500
 
@@ -54,7 +52,17 @@ type alias Uniforms u =
 
 
 teapot =
-    WebGL.triangleFan Teapot.vertices
+    WebGL.triangles
+        [ ( vx 0 0 0
+          , vx 1 2 0
+          , vx 1 -1 0
+          )
+        ]
+
+
+vx : Float -> Float -> Float -> { position: Vec3 }
+vx x y z =
+    { position = (vec3 x y z) }
 
 
 -- type alias AnyMesh v = Mesh (Vertex v)
