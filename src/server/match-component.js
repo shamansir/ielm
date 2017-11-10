@@ -56,7 +56,7 @@ function match(type) {
         return component(
             '3d',
             'ThreeDViewer',
-            [],
+            [ ],
             get3dSubType(type)
         );
     }

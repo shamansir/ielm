@@ -15,3 +15,7 @@ origin =
   }
 
 origin
+
+{ foo = [ 'a', 'b', 'c' ]
+, bar = "abc"
+}

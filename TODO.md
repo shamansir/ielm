@@ -5,6 +5,7 @@
 * Records;
 * Arrays;
 * Ensure type aliases to work, may be also display the alias name;
+* Maybes and Results;
 * Controlling some function results with inputs (some code is already in the `Cell`/`Tryings`), also: https://ellie-app.com/jF6N5Ksxta1/4);
 * Plots for some functions;
 * `raw` viewer for those types which are usually wrapped in 3dViewer or wrapped with inputs, if user wants to see them in their pureness instead;

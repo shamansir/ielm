@@ -18,6 +18,7 @@ function screen(screenId, moduleName, types, imports, chunks) {
   return `
 port module ${moduleName} exposing (..)
 
+import Dict
 import Html exposing (..)
 
 ${ imports.map((lines, cellId) => lines.join('\n')).join('\n') }
