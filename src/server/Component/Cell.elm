@@ -1,9 +1,7 @@
 module Component.Cell exposing
     ( renderBasic
     , render3dMesh
-    , renderRawMesh
     , renderControllable
-    , raw
     , Time
     , InputId
     , Input(..)
@@ -41,10 +39,6 @@ type Action
     | MouseMove Mouse.Position
     | SetRefPosition Mouse.Position
 
-type Raw a = Raw a
-
-raw : a -> Raw a
-raw v = Raw v
 
 renderBasic : (a -> Html Action) -> T.TypeAtom -> a -> Html Action
 renderBasic valueRenderer atom value =
@@ -53,18 +47,10 @@ renderBasic valueRenderer atom value =
         , [ valueRenderer value ] |> div [ class "cell_value" ]
         ]
 
+
 render3dMesh : Maybe Mouse.Position -> T.TypeAtom -> Mesh (ThreeDViewer.Vertex v) -> Html Action
 render3dMesh position atom mesh =
     renderBasic (ThreeDViewer.withMesh position) atom mesh
-    -- div [ class "cell" ]
-    --     [ [ T.render atom ] |> div [ class "cell_type" ]
-    --     , [ ThreeDViewer.withMesh position mesh ] |> div [ class "cell_value" ]
-    --     ]
-
-
-renderRawMesh : T.TypeAtom -> Mesh (ThreeDViewer.Vertex v) -> Html Action
-renderRawMesh atom mesh =
-    renderBasic (\_ -> span [] []) atom mesh
 
 
 renderControllable : (a -> Html Action) -> T.TypeAtom -> Inputs -> a -> Html Action
@@ -76,6 +62,7 @@ renderControllable valueRenderer atom inputs value =
         , [ valueRenderer value ]
           |> div [ class "cell_value" ]
         ]
+
 
 renderInput : Int -> Input -> Html Action
 renderInput index input_ =
@@ -90,6 +77,7 @@ renderInput index input_ =
             [ type_ "text", toTextInput index |> onInput ]
             [ text str ]
 
+
 extractVal : Input -> String
 extractVal i =
     case i of
@@ -97,17 +85,21 @@ extractVal i =
         IFloat num -> toString num
         IText str -> str
 
+
 toIntInput : Int -> String -> Action
 toIntInput index str =
     UpdateInput index (IInteger (String.toInt str |> Result.withDefault 0))
+
 
 toFloatInput : Int -> String -> Action
 toFloatInput index str =
     UpdateInput index (IFloat (String.toFloat str |> Result.withDefault 0.0))
 
+
 toTextInput : Int -> String -> Action
 toTextInput index str =
     UpdateInput index (IText str)
+
 
 useInputs : Inputs -> Html Action
 useInputs inputs =

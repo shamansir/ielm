@@ -3,11 +3,6 @@
 var unique = require('array-unique').immutable;
 
 function match(type) {
-    if (askedToBeRaw(type)) {
-        const innerComp = match(extractRawInnerType(type));
-        // TODO
-        return component('raw', innerComp.base, innerComp.requirements, innerComp);
-    }
     if (isStringType(type)) {
         return component('string', 'StringType');
     }
@@ -61,10 +56,6 @@ function component(alias, baseComponent, requirements, payload) {
             : [ baseComponent ],
         payload: payload
     }
-}
-
-function askedToBeRaw(t) {
-    return (t.type === 'type') && (t.def.name === 'Raw');
 }
 
 function isStringType(t) {

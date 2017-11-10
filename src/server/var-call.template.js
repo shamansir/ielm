@@ -4,23 +4,11 @@ function varCall(varName, typeDef, component) {
     ${varName} |> Cell.renderBasic
         ${getRenderCallFor(component)}
         ${typeDef}`;
-    } else if (component.alias === 'raw') {
-        return `t_${varName} =
-    ${varName} |> Cell.${getRawCallFor(component)}
-        ${typeDef}`;
     } else if (component.alias === '3d') {
         return `t_${varName} position =
     ${varName} |> Cell.${getRender3DCallFor(component)}
         position
         ${typeDef}`;
-    }
-}
-
-function getRawCallFor(component) {
-    if (component.payload === 'mesh') {
-        return 'renderRawMesh';
-    } else {
-        return 'renderBasic';
     }
 }
 

@@ -1,10 +1,5 @@
-import AnimationFrame
-import Html exposing (Html)
-import Html.Attributes exposing (width, height, style)
-import Math.Matrix4 as Mat4 exposing (Mat4)
 import Math.Vector3 as Vec3 exposing (vec3, Vec3)
-import Time exposing (Time)
-import WebGL exposing (Mesh, Shader)
+import WebGL exposing (Mesh)
 
 type alias Vertex =
     { position : Vec3
@@ -22,5 +17,3 @@ mesh =
         ]
 
 mesh
-
-raw mesh

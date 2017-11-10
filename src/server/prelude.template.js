@@ -4,9 +4,7 @@ function prelude(screenId, allImports, allDefinitions, chunks) {
       cells.map((lines, cellId) => lines.join('\n')).join('\n\n')
     )
   ).concat(
-    [ '',
-      'import Component.Cell exposing (raw)',
-      '' ]
+    [ '' ]
   ).concat(
     allDefinitions.map((cells, screenId) =>
       cells.map(
