@@ -110,11 +110,12 @@ function extractListItemType(t) {
 }
 
 function isRecordType(t) {
-    return (t.type === 'aliased') && !t.msgvar && t.list.length && (t.list[0].type === 'record');
+    return (t.type === 'record') ||
+          ((t.type === 'aliased') && !t.msgvar && t.list.length && (t.list[0].type === 'record'));
 }
 
 function extractRecordFieldData(t) {
-    return t.list[0].fields;
+    return (t.type === 'record') ? t.fields : t.list[0].fields;
 }
 
 function extractTupleItemTypes(t) {
