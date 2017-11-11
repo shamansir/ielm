@@ -1,10 +1,18 @@
 # iElm
 
+## First run
+
 Install Elm globally using `npm install -g elm`, then run `npm install` in this direcory.
 
-Run `npm start` and then open http://localhost:8080 in your browser
+Run `npm start` and then open http://localhost:8080 in your browser.
+
+## All the subsequent runs
 
 You may run `npm run quick-start` every next time instead of `npm start`, it is a way to avoid cleaning `elm-stuff` and re-installing the Elm packages which were already installed.
+
+## Adding a package
+
+For the moment, `iElm` puts everything into `build` directory, later I will change the logic to make it work from your project (like `elm-reactor`) so you'll be able to import all the packages used in your project. For now, change `src/server/elm-package.sample.json` to add wanted package.
 
 ## Terminology
 

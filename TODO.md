@@ -13,6 +13,7 @@
 * Collage viewers;
 * The ability to add more screens;
 * Tabs should display the condition of the code (Outdated vs Compiling vs Compiled/Up-to-date);
+* Find a way to build in project directory instead of `build`.
 * Keyboard shortcuts in the interface; Ability to quickly switch Screens with some hotkey and/or number key;
 * Expose only required things from all used or generated Elm modules;
 * Subscribe to mouseMove only when cell is 3D;

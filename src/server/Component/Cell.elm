@@ -3,6 +3,7 @@ module Component.Cell exposing
     , render3dMeshAt
     , renderEntityAt
     , renderControllable
+    , renderError
     , Time
     , InputId
     , Input(..)
@@ -114,6 +115,12 @@ useInputs inputs =
         |> Array.map (\i -> span [] [ text (extractVal i) ])
         |> Array.toList
         |> div [ ]
+
+
+renderError : String -> Html Action
+renderError errorText =
+    div [ class "cell_error" ]
+        [ text errorText ]
 
 -- view : Model -> Html Action
 -- view inputs =

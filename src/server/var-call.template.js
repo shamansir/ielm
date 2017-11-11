@@ -22,6 +22,8 @@ function getRender3DCallFor(component) {
     }
 }
 
+const I3 = '            '; // three indentations
+const I4 = '                '; // four indentations
 
 function getRenderCallFor(component, varName) {
     if (component.alias === 'list') {
@@ -30,15 +32,16 @@ function getRenderCallFor(component, varName) {
         return `(${component.base}.render${component.payload.arity}
         ( (${component.payload.items.map(getRenderCallFor).join('), (')}) ))`;
     } else if (component.alias === 'record') {
-        return `(${component.base}.render
-        (Dict.fromList
-            [ ${component.payload.map((data) =>
-                `( "${data.name}", ${getRenderCallFor(data.comp)} )`).join('\n            , ') }
-            ])
-        (Dict.fromList
-            [ ${component.payload.map((data) =>
-                `( "${data.name}", .${data.name} ${varName})`).join('\n            , ') }
-            ]))`;
+        const fields = component.payload;
+        return `(\\_ -> ${component.base}.render
+${I3}(Array.fromList [ "${ fields.map((fieldData) => fieldData.name).join('", "') }" ])
+${I3}(\\idx -> case idx of
+${ fields.map((fieldData, index) =>
+    `${I4}${index} -> ${getRenderCallFor(fieldData.comp)} (.${fieldData.name} ${varName})`)
+        .join('\n')
+}
+${I4}_ -> Cell.renderError "Unknown record field"
+${I3}))`;
     } else {
         return `${component.base}.render`;
     }

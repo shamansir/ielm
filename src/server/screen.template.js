@@ -18,7 +18,7 @@ function screen(screenId, moduleName, types, imports, chunks) {
   return `
 port module ${moduleName} exposing (..)
 
-import Dict
+import Array
 import Html exposing (..)
 
 ${ imports.map((lines, cellId) => lines.join('\n')).join('\n') }
@@ -51,7 +51,7 @@ ${
     }
   }).join('\n')
 }
-        _ -> div [] [ text "Unknown cell type" ]
+        _ -> Cell.renderError "Unknown cell type"
 
 ${
   chunks.map((lines, cellId) => {
