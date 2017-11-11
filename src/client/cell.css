@@ -95,6 +95,10 @@
     padding: 2px 0px 1px 0px
 }
 
+.comp_error {
+    color: tomato;
+}
+
 .comp_string {
     color: #a11;
 }
@@ -123,13 +127,28 @@
     content: " ]";
 }
 
-.comp_list_item,
+.comp_array_items::before {
+    content: "< ";
+}
+
+.comp_array_items::after {
+    content: " >";
+}
+
 .comp_list,
+.comp_list_item,
 .comp_list_items {
     display: inline;
 }
 
-.comp_list_items .comp_list_item::after {
+.comp_array,
+.comp_array_item,
+.comp_array_items {
+    display: inline;
+}
+
+.comp_list_items .comp_list_item::after,
+.comp_array_items .comp_array_item::after {
     content: ", ";
 }
 
@@ -141,8 +160,8 @@
     content: " )";
 }
 
-.comp_tuple_item,
 .comp_tuple,
+.comp_tuple_item,
 .comp_tuple_items {
     display: inline;
 }

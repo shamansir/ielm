@@ -26,7 +26,7 @@ const I3 = '            '; // three indentations
 const I4 = '                '; // four indentations
 
 function getRenderCallFor(component, varName) {
-    if (component.alias === 'list') {
+    if ((component.alias === 'list') || (component.alias === 'array')) {
         return `(${component.base}.render (${getRenderCallFor(component.payload)}))`;
     } else if (component.alias === 'tuple') {
         return `(${component.base}.render${component.payload.arity}

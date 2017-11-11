@@ -6,6 +6,8 @@ Install Elm globally using `npm install -g elm`, then run `npm install` in this 
 
 Run `npm start` and then open http://localhost:8080 in your browser.
 
+Try entering code from [examples]('./tree/master/examples').
+
 ## All the subsequent runs
 
 You may run `npm run quick-start` every next time instead of `npm start`, it is a way to avoid cleaning `elm-stuff` and re-installing the Elm packages which were already installed.

@@ -1,5 +1,7 @@
 module Component.ListType exposing (render)
 
+import List
+
 import Html exposing (..)
 import Html.Attributes exposing (class)
 
