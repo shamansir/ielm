@@ -56,6 +56,14 @@ function match(type) {
             fieldComponents
         );
     }
+    if (isAliasedType(type)) {
+        const aliasName = getAliasName(type);
+        const itemComp = match(extractAliasedItemType(type));
+        return component('alias', 'AliasType', itemComp.requirements, {
+            name: aliasName,
+            comp: itemComp
+        });
+    }
     if (mayBeViewedIn3d(type)) {
         return component(
             '3d',
@@ -109,8 +117,11 @@ function isTupleType(t) {
 }
 
 function isRecordType(t) {
-    return (t.type === 'record') ||
-          ((t.type === 'aliased') && !t.msgvar && t.list.length && (t.list[0].type === 'record'));
+    return (t.type === 'record');
+}
+
+function isAliasedType(t) {
+    return (t.type === 'aliased') && !t.msgvar && (t.list.length === 1);
 }
 
 function mayBeViewedIn3d(t) {
@@ -124,6 +135,14 @@ function extractListItemType(t) {
 
 function extractArrayItemType(t) {
     return t.object[0];
+}
+
+function getAliasName(t) {
+    return t.def.name;
+}
+
+function extractAliasedItemType(t) {
+    return t.list[0];
 }
 
 function extractRecordFieldData(t) {

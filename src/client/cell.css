@@ -170,6 +170,7 @@
     content: ", ";
 }
 
+.comp_record,
 .comp_record .comp_record_field,
 .comp_record .comp_record_field_name,
 .comp_record .comp_record_field_value {
@@ -195,4 +196,28 @@
 
 .comp_record_field_value::after {
     content: ", ";
+}
+
+.comp_alias_name,
+.comp_alias_item {
+    display: inline;
+}
+
+.comp_alias_name {
+    color: lightseagreen;
+    font-family: sans-serif;
+}
+
+.comp_alias_name::after {
+    content: " ";
+}
+
+.comp_alias_item::before {
+    color: lightblue;
+    content: "( ";
+}
+
+.comp_alias_item::after {
+    color: lightblue;
+    content: " )";
 }
