@@ -27,7 +27,7 @@ renderMaybe renderJust maybeVal =
         [ div [ class "comp_app_name" ] [ text "Maybe" ]
         , case maybeVal of
             Just v -> div [ class "comp_app_object" ] [ renderJust v ]
-            Nothing -> div [ class "comp_app_object comp_app--failure" ] [ text "Nothing" ]
+            Nothing -> div [ class "comp_app_object comp_app--failure-text" ] [ text "Nothing" ]
         ]
 
 

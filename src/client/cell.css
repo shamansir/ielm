@@ -198,6 +198,7 @@
     content: ", ";
 }
 
+.comp_alias,
 .comp_alias_name,
 .comp_alias_item {
     display: inline;
@@ -220,4 +221,40 @@
 .comp_alias_item::after {
     color: lightblue;
     content: " )";
+}
+
+.comp_app,
+.comp_app_name,
+.comp_app_object {
+    display: inline;
+}
+
+.comp_app_name {
+    color: burlywood;
+    font-family: sans-serif;
+}
+
+.comp_app_name::after {
+    content: " ";
+}
+
+.comp_app--failure {
+    border-radius: 5px;
+    border: 2px solid tomato;
+    padding: 0px 4px;
+}
+
+.comp_app--failure-text {
+    color: tomato;
+    font-family: sans-serif;
+}
+
+.comp_var,
+.comp_var_name {
+    display: inline;
+}
+
+.comp_var_name {
+    color: darkcyan;
+    font-family: sans-serif;
 }

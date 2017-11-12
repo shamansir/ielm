@@ -53,17 +53,20 @@ ${I1}))`;
         const comp = component.payload.comp;
         return `(${component.base}.render "${aliasName}"
 ${I0}(${getRenderCallFor(comp, varName, I1)}\n${I0}))`;
+    // var
+    } else if (component.alias === 'var') {
+        return `${component.base}.render "${component.payload}"`;
     // app
     } else if (component.alias === 'app') {
         const appName = component.payload.name;
         const objects = component.payload.objects;
-        const objectCount = component.payload.objects.length;
+        const objectCount = objects.length;
         // Maybe
         if (appName === 'Maybe') {
             return `(\\v -> ${component.base}.renderMaybe (${getRenderCallFor(objects[0], varName, I0)}) v)`;
         // Result
         } else if (appName === 'Result') {
-            return `(\\v -> ${component.base}.renderResult (${getRenderCallFor(objects[1], varName, I0)}) (${getRenderCallFor(objects[0], varName, I0)}) v)`;
+            return `(\\v -> ${component.base}.renderResult (${getRenderCallFor(objects[0], varName, I0)}) (${getRenderCallFor(objects[1], varName, I0)}) v)`;
         // others
         } else {
             return `(${component.base}.render "${appName}" ${objectCount}

@@ -15,3 +15,5 @@ Nothing
 Ok foo
 
 Err foo
+
+Err "Error with Message"

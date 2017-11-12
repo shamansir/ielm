@@ -64,6 +64,10 @@ function match(type) {
             comp: itemComp
         });
     }
+    if (isVarType(type)) {
+        const varName = getVarName(type);
+        return component('var', 'VarType', [], varName);
+    }
     if (isAppType(type)) {
         const objectComponents = extractAppObjectTypes(type).map(match);
         const objectRequirements = objectComponents.map(
@@ -147,6 +151,10 @@ function isAppType(t) {
                               && !isTupleType(t);
 }
 
+function isVarType(t) {
+    return (t.type === 'var');
+}
+
 function mayBeViewedIn3d(t) {
     return ((t.type === 'app') && (t.subject.def.name === 'Mesh')) ||
            ((t.type === 'type') && (t.def.name === 'Entity'));
@@ -191,6 +199,10 @@ function getTupleArity(t) {
 
 function getAppSubjectName(t) {
     return (t.subject && t.subject.type === 'type' && t.subject.def) ? t.subject.def.name : '?';
+}
+
+function getVarName(t) {
+    return 'test';
 }
 
 module.exports = match;
