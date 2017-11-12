@@ -249,6 +249,20 @@
     font-family: sans-serif;
 }
 
+.comp_app_variant {
+    color: khaki;
+    font-family: sans-serif;
+}
+
+.comp_app_variant::after {
+    content: " ";
+}
+
+.comp_app--maybe .comp_app_name,
+.comp_app--result .comp_app_name {
+    display: none;
+}
+
 .comp_var,
 .comp_var_name {
     display: inline;
