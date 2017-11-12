@@ -42,7 +42,7 @@ ${I0}(( ${component.payload.items.map((item) =>
 ${I1}(Array.fromList [ "${ fields.map((fieldData) => fieldData.name).join('", "') }" ])
 ${I1}(\\idx -> case idx of
 ${ fields.map((fieldData, index) =>
-    `${I2}${index} -> \n${I3}${getRenderCallFor(fieldData.comp, varName, I3)} (.${fieldData.name} ${varName})`)
+    `${I2}${index} -> \n${I3}${getRenderCallFor(fieldData.comp, varName, I3)} (.${fieldData.name} v)`)
         .join('\n')
 }
 ${I2}_ -> Cell.renderError "Unknown record field"
@@ -56,13 +56,23 @@ ${I0}(${getRenderCallFor(comp, varName, I1)}\n${I0}))`;
     // app
     } else if (component.alias === 'app') {
         const appName = component.payload.name;
+        const objects = component.payload.objects;
         const objectCount = component.payload.objects.length;
-        return `(${component.base}.render "${appName}" ${objectCount}
+        // Maybe
+        if (appName === 'Maybe') {
+            return `(\\v -> ${component.base}.renderMaybe (${getRenderCallFor(objects[0], varName, I0)}) v)`;
+        // Result
+        } else if (appName === 'Result') {
+            return `(\\v -> ${component.base}.renderResult (${getRenderCallFor(objects[1], varName, I0)}) (${getRenderCallFor(objects[0], varName, I0)}) v)`;
+        // others
+        } else {
+            return `(${component.base}.render "${appName}" ${objectCount}
 ${I0}(\\idx -> case idx of
 ${ component.payload.objects.map(
     (obj, index) => `${I1}${index} -> \n${I2}(${getRenderCallFor(obj, varName, I2)})` ).join('\n') }
 ${I1}_ -> Cell.renderError "Unknown record field"
 ${I0}))`;
+        }
     // others
     } else {
         return `${component.base}.render`;

@@ -1,9 +1,13 @@
-type FF = T1 Int | T2 String
+type FF = T1 | T2 Int | T3 String
 
-a = T1 2
+a = T1
 
-b = T2 "f"
+b = T2 2
+
+c = T3 "f"
 
 a
 
 b
+
+c

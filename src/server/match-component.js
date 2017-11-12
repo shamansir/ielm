@@ -1,6 +1,6 @@
 // See https://github.com/shamansir/node-elm-repl/blob/master/Types.md for reference
 
-var unique = require('array-unique').immutable;
+const unique = require('array-unique').immutable;
 
 function match(type) {
     if (isStringType(type)) {
