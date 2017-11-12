@@ -1,0 +1,15 @@
+type alias Test =
+    { a: Int
+    , b: String
+    }
+
+foo : Test
+foo = { a = 1, b = "f" }
+
+foo
+
+Just foo
+
+Ok foo
+
+Err foo

@@ -22,30 +22,48 @@ function getRender3DCallFor(component) {
     }
 }
 
-const I3 = '            '; // three indentations
-const I4 = '                '; // four indentations
-
-function getRenderCallFor(component, varName) {
+function getRenderCallFor(component, varName, indent) {
+    const I0 = indent || '            ';
+    const I1 = I0 + '    ';
+    const I2 = I1 + '    ';
+    const I3 = I2 + '    ';
+    // list & array
     if ((component.alias === 'list') || (component.alias === 'array')) {
-        return `(${component.base}.render (${getRenderCallFor(component.payload, varName)}))`;
+        return `(${component.base}.render\n${I0}( ${getRenderCallFor(component.payload, varName, I0)}\n${I0}))`;
+    // tuple
     } else if (component.alias === 'tuple') {
         return `(${component.base}.render${component.payload.arity}
-        ( (${component.payload.items.map((item) => getRenderCallFor(item, varName)).join('), (')}) ))`;
+${I0}(( ${component.payload.items.map((item) =>
+    getRenderCallFor(item, varName, I0)).join(`)\n${I0}, (`)}) \n${I0}))`;
+    // record
     } else if (component.alias === 'record') {
         const fields = component.payload;
-        return `(\\_ -> ${component.base}.render
-${I3}(Array.fromList [ "${ fields.map((fieldData) => fieldData.name).join('", "') }" ])
-${I3}(\\idx -> case idx of
+        return `(\\v -> ${component.base}.render
+${I1}(Array.fromList [ "${ fields.map((fieldData) => fieldData.name).join('", "') }" ])
+${I1}(\\idx -> case idx of
 ${ fields.map((fieldData, index) =>
-    `${I4}${index} -> ${getRenderCallFor(fieldData.comp, varName)} (.${fieldData.name} ${varName})`)
+    `${I2}${index} -> \n${I3}${getRenderCallFor(fieldData.comp, varName, I3)} (.${fieldData.name} ${varName})`)
         .join('\n')
 }
-${I4}_ -> Cell.renderError "Unknown record field"
-${I3}))`;
+${I2}_ -> Cell.renderError "Unknown record field"
+${I1}))`;
+    // alias
     } else if (component.alias === 'alias') {
         const aliasName = component.payload.name;
         const comp = component.payload.comp;
-        return `(${component.base}.render "${aliasName}" (${getRenderCallFor(comp, varName)}))`;
+        return `(${component.base}.render "${aliasName}"
+${I0}(${getRenderCallFor(comp, varName, I1)}\n${I0}))`;
+    // app
+    } else if (component.alias === 'app') {
+        const appName = component.payload.name;
+        const objectCount = component.payload.objects.length;
+        return `(${component.base}.render "${appName}" ${objectCount}
+${I0}(\\idx -> case idx of
+${ component.payload.objects.map(
+    (obj, index) => `${I1}${index} -> \n${I2}(${getRenderCallFor(obj, varName, I2)})` ).join('\n') }
+${I1}_ -> Cell.renderError "Unknown record field"
+${I0}))`;
+    // others
     } else {
         return `${component.base}.render`;
     }

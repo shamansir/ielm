@@ -30,6 +30,10 @@ class Tabs {
     this.changeTab('status', 'Up-to-date', { background: 'deepskyblue' });
   }
 
+  informError() {
+    this.changeTab('status', 'Error', { background: 'tomato' });
+  }
+
   changeTab(alias, content, options) {
     this.tabs[alias].update(content, options);
   }

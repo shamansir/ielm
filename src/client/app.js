@@ -130,6 +130,7 @@ class App {
       }).catch(function(ex) {
         console.error('parsing failed', ex);
         previews[screenId].error(ex.message);
+        tabs[screenId].informError();
       });
       //console.log(elmDocument);
   }

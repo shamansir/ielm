@@ -1,0 +1,9 @@
+type FF = T1 Int | T2 String
+
+a = T1 2
+
+b = T2 "f"
+
+a
+
+b

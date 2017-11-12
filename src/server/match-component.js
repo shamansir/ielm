@@ -64,6 +64,22 @@ function match(type) {
             comp: itemComp
         });
     }
+    if (isAppType(type)) {
+        const objectComponents = extractAppObjectTypes(type).map(match);
+        const objectRequirements = objectComponents.map(
+            (objectData) => objectData.requirements
+        ).reduce( // a.k.a flatMap
+            (allRequirements, objectRequirements) => allRequirements.concat(objectRequirements),
+        []);
+        return component(
+            'app',
+            'AppType',
+            objectRequirements,
+            { name: getAppSubjectName(type),
+              objects: objectComponents
+            }
+        );
+    }
     if (mayBeViewedIn3d(type)) {
         return component(
             '3d',
@@ -124,6 +140,13 @@ function isAliasedType(t) {
     return (t.type === 'aliased') && !t.msgvar && (t.list.length === 1);
 }
 
+function isAppType(t) {
+    return (t.type === 'app') && !mayBeViewedIn3d(t)
+                              && !isListType(t)
+                              && !isArrayType(t)
+                              && !isTupleType(t);
+}
+
 function mayBeViewedIn3d(t) {
     return ((t.type === 'app') && (t.subject.def.name === 'Mesh')) ||
            ((t.type === 'type') && (t.def.name === 'Entity'));
@@ -145,6 +168,10 @@ function extractAliasedItemType(t) {
     return t.list[0];
 }
 
+function extractAppObjectTypes(t) {
+    return t.object;
+}
+
 function extractRecordFieldData(t) {
     return (t.type === 'record') ? t.fields : t.list[0].fields;
 }
@@ -160,6 +187,10 @@ function get3dSubType(t) {
 
 function getTupleArity(t) {
     return parseInt(t.subject.def.name.substring(6));
+}
+
+function getAppSubjectName(t) {
+    return (t.subject && t.subject.type === 'type' && t.subject.def) ? t.subject.def.name : '?';
 }
 
 module.exports = match;
