@@ -3,9 +3,16 @@
 const unique = require('array-unique').immutable;
 //const util = require('util');
 
+/* const inputsMap = {
+    'String': 'IText',
+    'Int': 'IInteger',
+    'Float': 'IFloat',
+    'number': 'IFloat'
+} */
+
 function match(type) {
-    // console.log(util.inspect(type, { showHidden: false, depth: null }));
-    // console.log('\n\n');
+    //console.log(util.inspect(type, { showHidden: false, depth: null }));
+    //console.log('\n\n');
     if (isStringType(type)) {
         return component('string', 'StringType');
     }

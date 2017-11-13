@@ -4,4 +4,8 @@ import Html exposing (..)
 import Html.Attributes exposing (class)
 
 render : x -> Html a
-render _ = span [ class "comp_unknown" ] [ text "No renderer" ]
+render v =
+    span [ class "comp_unknown" ]
+         [ text "No renderer"
+         , span [ class "comp_unknown_stringified" ] [ text (toString v) ]
+         ]

@@ -119,6 +119,16 @@
     color: rosybrown;
 }
 
+.comp_unknown_stringified {
+    font-family: sans-serif;
+    color: #666;
+}
+
+.comp_unknown_stringified::before {
+    color: #999;
+    content: " String value: ";
+}
+
 .comp_list_items::before {
     content: "[ ";
 }
