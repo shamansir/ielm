@@ -1,8 +1,11 @@
 // See https://github.com/shamansir/node-elm-repl/blob/master/Types.md for reference
 
 const unique = require('array-unique').immutable;
+//const util = require('util');
 
 function match(type) {
+    // console.log(util.inspect(type, { showHidden: false, depth: null }));
+    // console.log('\n\n');
     if (isStringType(type)) {
         return component('string', 'StringType');
     }

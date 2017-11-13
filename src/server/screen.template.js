@@ -2,14 +2,17 @@ const matchComponent = require('./match-component.js');
 const adaptType = require('./adapt-type.js');
 const makeVarCall = require('./var-call.template.js');
 
-function screen(screenId, moduleName, types, imports, chunks) {
-  const componentsByVar = types.reduce((map, current) => {
+//const util = require('util');
+
+function screen(screenId, moduleName, allTypes, imports, chunks) {
+  //console.log(util.inspect(allTypes, { showHidden: false, depth: null }));
+  const componentsByVar = allTypes.reduce((map, current) => {
     if (current.name.indexOf('cell_') == 0) {
       map[current.name] = matchComponent(current.value);
     }
     return map;
   }, {});
-  const typesByVar = types.reduce((map, current) => {
+  const typesByVar = allTypes.reduce((map, current) => {
     if (current.name.indexOf('cell_') == 0) {
       map[current.name] = adaptType(current.value);
     }

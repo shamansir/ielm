@@ -18,9 +18,9 @@ Err foo
 
 Err "Error with Message"
 
-type TestApp e x = TestApp e x
+type TestApp e x f = TestApp e x f
 
-a : TestApp String Int
-a = TestApp "f" 2
+a : TestApp String Int Test
+a = TestApp "f" 2 { a = 3, b = "c" }
 
 a

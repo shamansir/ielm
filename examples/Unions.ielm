@@ -1,8 +1,10 @@
-type FF = T1 | T2 Int | T3 String
+type FF = T1 | T2 Int String | T3 String
+
+type FFI = TI1 | TI2 Int | TI3 String | TI4 FFI
 
 a = T1
 
-b = T2 2
+b = T2 2 "a"
 
 c = T3 "f"
 
@@ -11,3 +13,9 @@ a
 b
 
 c
+
+d = TI4 (TI3 "c")
+
+d
+
+toString d
