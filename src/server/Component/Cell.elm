@@ -61,13 +61,13 @@ renderEntityAt position atom entity =
     (\_ -> entity) |> renderBasic (ThreeDViewer.withEntityAt position) atom
 
 
-renderControllable : (a -> Html Action) -> Inputs -> T.TypeAtom -> a -> Html Action
+renderControllable : (Inputs -> a -> Html Action) -> Inputs -> T.TypeAtom -> a -> Html Action
 renderControllable valueRenderer inputs atom value =
     div [ class "cell" ]
         [ (Array.indexedMap renderInput inputs)
           |> Array.toList
           |> div [ class "cell_inputs" ]
-        , [ valueRenderer value ]
+        , [ valueRenderer inputs value ]
           |> div [ class "cell_value" ]
         ]
 

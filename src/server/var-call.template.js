@@ -5,20 +5,30 @@ const inputsDefaults = {
 }
 
 function varCall(varName, typeDef, component) {
+    // 3d
     if (component.alias === '3d') {
         return `t_${varName} position =
     ${varName} |> Cell.${getRender3DCallFor(component)}
         position
         ${typeDef}`;
+    // controls
     } else if (component.alias === 'controls') {
         const inputs = component.payload.inputs;
-        return `t_${varName} =
+        const inputVars = Array(inputs.length).fill().map((_, i) => `v${i}`).join(' ');
+        const inputMatch = `[ ${ inputs.map((input, i) => `Cell.${input} v${i}`).join(', ') } ]`;
+        return `t_${varName} inputs =
     ${varName} |> Cell.renderControllable
-        ${ getRenderCallFor(component.payload.comp, varName) }
-        (Array.fromList [ ${
-            inputs.map((input) => `Cell.${input} ${inputsDefaults[input]}`).join(', ')
-        } ])
+        (\\inputs v ->
+            case (Array.toList inputs) of
+                ${inputMatch} -> (v ${inputVars}) |> (${ getRenderCallFor(component.payload.comp, varName) })
+                _ -> Cell.renderError "Failed to calculate")
+        (inputs |> Maybe.withDefault
+            (Array.fromList [ ${
+                inputs.map((input) => `Cell.${input} ${inputsDefaults[input]}`).join(', ')
+            } ])
+        )
         ${typeDef}`;
+    // others
     } else {
         return `t_${varName} =
         ${varName} |> Cell.renderBasic

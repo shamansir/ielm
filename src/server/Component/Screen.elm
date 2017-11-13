@@ -6,6 +6,7 @@ port module Component.Screen exposing
     , subscribe
     )
 
+import Array
 import Mouse
 
 import Component.Cell as Cell
@@ -21,6 +22,7 @@ type alias Model =
     { cellId: CellId
     , refPosition: Maybe Mouse.Position
     , position: Maybe Mouse.Position
+    , inputs: Maybe Cell.Inputs
     }
 
 init : Flags -> ( Model, Cmd Cell.Action )
@@ -28,6 +30,7 @@ init { cellId } =
     { cellId = cellId
     , refPosition = Nothing
     , position = Nothing
+    , inputs = Nothing
     } ! []
 
 update : Cell.Action -> Model -> ( Model, Cmd Cell.Action )
@@ -37,7 +40,11 @@ update action model =
             (model |> withAdaptedPosition position) ! []
         Cell.SetRefPosition refPosition ->
             { model | refPosition = Just refPosition } ! []
-        _ -> model ! []
+        Cell.UpdateInput inputId newValue ->
+            case model.inputs of
+                Just curInputs ->
+                    { model | inputs = Just (curInputs |> Array.set inputId newValue) } ! []
+                Nothing -> model ! []
 
 withAdaptedPosition : Mouse.Position -> Model -> Model
 withAdaptedPosition position model =

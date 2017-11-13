@@ -41,16 +41,18 @@ ${
 }
 
 view : Screen.Model -> Html Cell.Action
-view { cellId, position } =
+view { cellId, position, inputs } =
     case cellId of
 ${
   chunks.map((lines, cellId) => {
     const varName = `cell_${screenId}_${cellId}`;
     const component = componentsByVar[varName];
-    if (component.alias !== '3d') {
-      return `        ${cellId} -> t_${varName}`;
-    } else {
+    if (component.alias === '3d') {
       return `        ${cellId} -> t_${varName} position`;
+    } else if (component.alias === 'controls') {
+      return `        ${cellId} -> t_${varName} inputs`;
+    } else {
+      return `        ${cellId} -> t_${varName}`;
     }
   }).join('\n')
 }
