@@ -69,12 +69,13 @@ ${I0}(${getRenderCallFor(comp, varName, I1)}\n${I0}))`;
             return `(\\v -> ${component.base}.renderResult (${getRenderCallFor(objects[0], varName, I0)}) (${getRenderCallFor(objects[1], varName, I0)}) v)`;
         // others
         } else {
-            return `(${component.base}.render "${appName}" ${objectCount}
-${I0}(\\idx -> case idx of
-${ component.payload.objects.map(
-    (obj, index) => `${I1}${index} -> \n${I2}(${getRenderCallFor(obj, varName, I2)})` ).join('\n') }
-${I1}_ -> Cell.renderError "Unknown record field"
-${I0}))`;
+            const objectVars = Array(objectCount).fill().map((_, i) => `v${i}`);
+            return `(${component.base}.render "${appName}"
+${I0}(\\v -> case v of
+${I1}${appName} ${ objectVars.join(' ') } -> [ ${
+    objects.map((obj, index) => `${I2}(${getRenderCallFor(obj, varName, I2)} ${objectVars[index]})`).join(`\n${I2}, `)
+}
+${I2}]))`;
         }
     // others
     } else {

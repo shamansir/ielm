@@ -17,3 +17,10 @@ Ok foo
 Err foo
 
 Err "Error with Message"
+
+type TestApp e x = TestApp e x
+
+a : TestApp String Int
+a = TestApp "f" 2
+
+a

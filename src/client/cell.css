@@ -258,6 +258,10 @@
     content: " ";
 }
 
+.comp_app_object::after {
+    content: " ";
+}
+
 .comp_app--maybe .comp_app_name,
 .comp_app--result .comp_app_name {
     display: none;
