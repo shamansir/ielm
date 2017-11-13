@@ -3,12 +3,12 @@
 const unique = require('array-unique').immutable;
 //const util = require('util');
 
-/* const inputsMap = {
+const inputsMap = {
     'String': 'IText',
     'Int': 'IInteger',
     'Float': 'IFloat',
     'number': 'IFloat'
-} */
+};
 
 function match(type) {
     //console.log(util.inspect(type, { showHidden: false, depth: null }));
@@ -94,6 +94,16 @@ function match(type) {
             }
         );
     }
+    if (isControllable(type)) {
+        //console.log('isControllable', getInputsFor(type), getSubjectOfInputs(type));
+        return component('controls',
+            'Cell',
+            [ ],
+            { inputs: getInputsFor(type).map((elmType) => inputsMap[elmType])
+            , comp: match(getSubjectOfInputs(type))
+            }
+        );
+    }
     if (mayBeViewedIn3d(type)) {
         return component(
             '3d',
@@ -165,6 +175,22 @@ function isVarType(t) {
     return (t.type === 'var');
 }
 
+function isControllable(t) {
+    if (t.type !== 'lambda') return false;
+    const expandedLambda = expandLambda(t);
+    if (expandedLambda.length <= 1) return false;
+    const withDroppedType = expandedLambda.slice(0, expandedLambda.length - 1);
+    return withDroppedType.reduce((prev, current) => {
+        return prev && inputsMap[current];
+    }, true);
+}
+
+function expandLambda(t) {
+    if (t.type === 'lambda') return expandLambda(t.left).concat(expandLambda(t.right));
+    if (t.type === 'type') return [ t.def.name ];
+    return [];
+}
+
 function mayBeViewedIn3d(t) {
     return ((t.type === 'app') && (t.subject.def.name === 'Mesh')) ||
            ((t.type === 'type') && (t.def.name === 'Entity'));
@@ -213,6 +239,20 @@ function getAppSubjectName(t) {
 
 function getVarName(t) {
     return 'test';
+}
+
+function getInputsFor(t) {
+    const expandedLambda = expandLambda(t);
+    return expandedLambda.slice(0, expandedLambda.length - 1);
+}
+
+function reachLambdaEnd(t) {
+    if (t.type === 'lambda') return reachLambdaEnd(t.right);
+    return t;
+}
+
+function getSubjectOfInputs(t) {
+    return reachLambdaEnd(t);
 }
 
 module.exports = match;

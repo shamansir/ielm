@@ -1,14 +1,29 @@
+const inputsDefaults = {
+    'IInteger': '0',
+    'IFloat': '0.0',
+    'IText': '"test"'
+}
+
 function varCall(varName, typeDef, component) {
-    if (component.alias !== '3d') {
-        return `t_${varName} =
-    ${varName} |> Cell.renderBasic
-        ${getRenderCallFor(component, varName)}
-        ${typeDef}`;
-    } else if (component.alias === '3d') {
+    if (component.alias === '3d') {
         return `t_${varName} position =
     ${varName} |> Cell.${getRender3DCallFor(component)}
         position
         ${typeDef}`;
+    } else if (component.alias === 'controls') {
+        const inputs = component.payload.inputs;
+        return `t_${varName} =
+    ${varName} |> Cell.renderControllable
+        ${ getRenderCallFor(component.payload.comp, varName) }
+        (Array.fromList [ ${
+            inputs.map((input) => `Cell.${input} ${inputsDefaults[input]}`).join(', ')
+        } ])
+        ${typeDef}`;
+    } else {
+        return `t_${varName} =
+        ${varName} |> Cell.renderBasic
+            ${getRenderCallFor(component, varName)}
+            ${typeDef}`;
     }
 }
 
