@@ -67,13 +67,47 @@ ${
   }).join('\n\n')
 }
 
+addInputs : Screen.Flags -> ( Screen.Model, Cmd Cell.Action ) -> ( Screen.Model, Cmd Cell.Action )
+addInputs { cellId } payload =
+${
+  (() => {
+    const inputsByCell = chunks.reduce((inputs, _, cellId) => {
+      const varName = `cell_${screenId}_${cellId}`;
+      const component = componentsByVar[varName];
+      if (component.alias === 'controls') {
+        inputs[cellId] = component;
+      }
+      return inputs;
+    }, {});
+    const initialValues = Object.keys(inputsByCell).reduce((values, cellId) => {
+      const comp = inputsByCell[cellId];
+      const defaults = comp.payload.inputDefaults;
+      values[cellId] = `[ ${comp.payload.inputs.map((input) => `Cell.${input} ${defaults[input]}`).join(', ') } ]`;
+      return values;
+    }, {});
+    // if there are inputs
+    if (Object.keys(inputsByCell).length > 0) { return `
+    Screen.addInputs
+        (case cellId of
+${ Object.keys(inputsByCell).map((cellId) => {
+  return `            ${cellId} -> ${initialValues[cellId]}`;
+}).join('\n') }
+            _ -> []
+        )
+        payload`
+    // if there are none
+    } else { return `    payload`
+    };
+  })()
+}
+
 port setRefPosition : ({ x: Int, y: Int } -> x) -> Sub x
 
 subscribe = \\model -> Sub.batch (Screen.subscribe model ++ [ setRefPosition Cell.SetRefPosition ])
 
 main =
     programWithFlags
-        { init = Screen.init
+        { init = (\\cellId -> cellId |> Screen.init |> (addInputs cellId))
         , update = Screen.update
         , subscriptions = subscribe
         , view = view

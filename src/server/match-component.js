@@ -7,8 +7,16 @@ const inputsMap = {
     'String': 'IText',
     'Int': 'IInteger',
     'Float': 'IFloat',
-    'number': 'IFloat'
+    'number': 'IFloat',
+    'Bool': 'IBool'
 };
+
+const inputDefaults = {
+    'IInteger': '0',
+    'IFloat': '0.0',
+    'IText': '"test"',
+    'IBool': 'false'
+}
 
 function match(type) {
     //console.log(util.inspect(type, { showHidden: false, depth: null }));
@@ -100,6 +108,7 @@ function match(type) {
             'Cell',
             [ ],
             { inputs: getInputsFor(type).map((elmType) => inputsMap[elmType])
+            , inputDefaults: inputDefaults
             , comp: match(getSubjectOfInputs(type))
             }
         );

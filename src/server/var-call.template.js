@@ -1,9 +1,3 @@
-const inputsDefaults = {
-    'IInteger': '0',
-    'IFloat': '0.0',
-    'IText': '"test"'
-}
-
 function varCall(varName, typeDef, component) {
     // 3d
     if (component.alias === '3d') {
@@ -14,6 +8,7 @@ function varCall(varName, typeDef, component) {
     // controls
     } else if (component.alias === 'controls') {
         const inputs = component.payload.inputs;
+        const inputDefaults = component.payload.inputDefaults;
         const inputVars = Array(inputs.length).fill().map((_, i) => `v${i}`).join(' ');
         const inputMatch = `[ ${ inputs.map((input, i) => `Cell.${input} v${i}`).join(', ') } ]`;
         return `t_${varName} inputs =
@@ -24,7 +19,7 @@ function varCall(varName, typeDef, component) {
                 _ -> Cell.renderError "Failed to calculate")
         (inputs |> Maybe.withDefault
             (Array.fromList [ ${
-                inputs.map((input) => `Cell.${input} ${inputsDefaults[input]}`).join(', ')
+                inputs.map((input) => `Cell.${input} ${inputDefaults[input]}`).join(', ')
             } ])
         )
         ${typeDef}`;

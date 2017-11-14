@@ -32,6 +32,7 @@ type Input
     = IInteger Int
     | IFloat Float
     | IText String
+    | IBool Bool
 
 type alias Inputs = Array.Array Input
 
@@ -84,6 +85,9 @@ renderInput index input_ =
         IText str -> input
             [ type_ "text", toTextInput index |> onInput ]
             [ text str ]
+        IBool bool -> input
+            [ type_ "checkbox", checked bool, toBoolInput index |> onInput ]
+            [ ]
 
 
 extractVal : Input -> String
@@ -92,6 +96,7 @@ extractVal i =
         IInteger num -> toString num
         IFloat num -> toString num
         IText str -> str
+        IBool bool -> toString bool
 
 
 toIntInput : Int -> String -> Action
@@ -107,6 +112,14 @@ toFloatInput index str =
 toTextInput : Int -> String -> Action
 toTextInput index str =
     UpdateInput index (IText str)
+
+
+toBoolInput : Int -> String -> Action
+toBoolInput index str =
+    UpdateInput index (IBool
+        (case str of
+            "checked" -> True
+            _ -> False))
 
 
 useInputs : Inputs -> Html Action
