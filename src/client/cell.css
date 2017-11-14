@@ -145,6 +145,14 @@
     content: " >";
 }
 
+.comp_set_items::before {
+    content: "/ ";
+}
+
+.comp_set_items::after {
+    content: " /";
+}
+
 .comp_list,
 .comp_list_item,
 .comp_list_items {
@@ -157,8 +165,15 @@
     display: inline;
 }
 
+.comp_set,
+.comp_set_item,
+.comp_set_items {
+    display: inline;
+}
+
 .comp_list_items .comp_list_item::after,
-.comp_array_items .comp_array_item::after {
+.comp_array_items .comp_array_item::after,
+.comp_set_items .comp_set_item::after {
     content: ", ";
 }
 

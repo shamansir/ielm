@@ -47,8 +47,8 @@ function getRenderCallFor(component, varName, indent) {
     const I1 = I0 + '    ';
     const I2 = I1 + '    ';
     const I3 = I2 + '    ';
-    // list & array
-    if ((component.alias === 'list') || (component.alias === 'array')) {
+    // list & array & set
+    if ((component.alias === 'list') || (component.alias === 'array') || (component.alias === 'set')) {
         return `(${component.base}.render\n${I0}( ${getRenderCallFor(component.payload, varName, I0)}\n${I0}))`;
     // tuple
     } else if (component.alias === 'tuple') {

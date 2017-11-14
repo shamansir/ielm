@@ -38,6 +38,10 @@ function match(type) {
         const itemComp = match(extractArrayItemType(type));
         return component('array', 'ArrayType', itemComp.requirements, itemComp);
     }
+    if (isSetType(type)) {
+        const itemComp = match(extractSetItemType(type));
+        return component('set', 'SetType', itemComp.requirements, itemComp);
+    }
     if (isTupleType(type)) {
         const itemComponents = extractTupleItemTypes(type).map(match);
         const itemRequirements = itemComponents.map(
@@ -161,6 +165,10 @@ function isArrayType(t) {
     return (t.type === 'app') && (t.subject.def.name === 'Array');
 }
 
+function isSetType(t) {
+    return (t.type === 'app') && (t.subject.def.name === 'Set');
+}
+
 function isTupleType(t) {
     return ((t.type === 'app') && (t.subject.def.name.indexOf('Tuple') === 1));
 }
@@ -210,6 +218,10 @@ function extractListItemType(t) {
 }
 
 function extractArrayItemType(t) {
+    return t.object[0];
+}
+
+function extractSetItemType(t) {
     return t.object[0];
 }
 
