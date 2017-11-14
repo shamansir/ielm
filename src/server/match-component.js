@@ -1,7 +1,7 @@
 // See https://github.com/shamansir/node-elm-repl/blob/master/Types.md for reference
 
 const unique = require('array-unique').immutable;
-//const util = require('util');
+const ElmRepl = require('node-elm-repl');
 
 const inputsMap = {
     'String': 'IText',
@@ -19,8 +19,6 @@ const inputDefaults = {
 }
 
 function match(type) {
-    //console.log(util.inspect(type, { showHidden: false, depth: null }));
-    //console.log('\n\n');
     if (isStringType(type)) {
         return component('string', 'StringType');
     }
@@ -107,7 +105,6 @@ function match(type) {
         );
     }
     if (isControllable(type)) {
-        //console.log('isControllable', getInputsFor(type), getSubjectOfInputs(type));
         return component('controls',
             'Cell',
             [ ],
@@ -202,10 +199,14 @@ function isControllable(t) {
     }, true);
 }
 
+function countLambdaBranches(t) {
+    if (t.type === 'lambda') return countLambdaBranches(t.left) + countLambdaBranches(t.right);
+    return 1;
+}
+
 function expandLambda(t) {
     if (t.type === 'lambda') return expandLambda(t.left).concat(expandLambda(t.right));
-    if (t.type === 'type') return [ t.def.name ];
-    return [];
+    return [ ElmRepl.stringify(t) ];
 }
 
 function mayBeViewedIn3d(t) {
