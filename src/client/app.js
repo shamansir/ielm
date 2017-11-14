@@ -19,7 +19,7 @@ const Tabs = require('./tabs.js');
 const Preview = require('./preview.js');
 
 const codemirrorOptions = {
-  value: '"foobar"',
+  value: '',
   mode: 'elm',
   lineNumbers: true,
   autofocus: true
