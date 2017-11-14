@@ -1,4 +1,6 @@
-# iElm
+# I, Elm.
+
+[IElm — In action](https://vimeo.com/242822314), a video at vimeo.
 
 ## First run
 
