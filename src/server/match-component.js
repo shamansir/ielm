@@ -105,9 +105,10 @@ function match(type) {
         );
     }
     if (isControllable(type)) {
+        const comp = match(getSubjectOfInputs(type));
         return component('controls',
             'Cell',
-            [ ],
+            comp.requirements,
             { inputs: getInputsFor(type).map((elmType) => inputsMap[elmType])
             , inputDefaults: inputDefaults
             , comp: match(getSubjectOfInputs(type))
