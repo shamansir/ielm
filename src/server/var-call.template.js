@@ -15,7 +15,9 @@ function varCall(varName, typeDef, component) {
     ${varName} |> Cell.renderControllable
         (\\inputs v ->
             case (Array.toList inputs) of
-                ${inputMatch} -> (v ${inputVars}) |> (${ getRenderCallFor(component.payload.comp, varName) })
+                ${inputMatch} -> (v ${inputVars}) |> (
+                    ${ getRenderCallFor(component.payload.comp, varName) }
+                )
                 _ -> Cell.renderError "Failed to calculate")
         (inputs |> Maybe.withDefault
             (Array.fromList [ ${
@@ -53,8 +55,8 @@ function getRenderCallFor(component, varName, indent) {
     // tuple
     } else if (component.alias === 'tuple') {
         return `(${component.base}.render${component.payload.arity}
-${I0}(( ${component.payload.items.map((item) =>
-    getRenderCallFor(item, varName, I0)).join(`)\n${I0}, (`)}) \n${I0}))`;
+${I2}(( ${component.payload.items.map((item) =>
+    getRenderCallFor(item, varName, I3)).join(`)\n${I2}, (`)}) \n${I2}))`;
     // record
     } else if (component.alias === 'record') {
         const fields = component.payload;

@@ -25,7 +25,7 @@ a = TestApp "f" 2 { a = 3, b = "c" }
 
 a
 
-t : Int -> Maybe Int
-t n = Just n
+t : Float -> Int -> Maybe (Float, Int)
+t n z = Just ( n, z )
 
 t
