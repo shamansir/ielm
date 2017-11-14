@@ -1,6 +1,6 @@
 # I, Elm.
 
-[IElm — In action](https://vimeo.com/242822314), a video at vimeo.
+[IElm — In action](https://vimeo.com/242822314), video @ vimeo.
 
 ## First run
 
@@ -9,6 +9,8 @@ Install Elm globally using `npm install -g elm`, then run `npm install` in this 
 Run `npm start` and then open http://localhost:8080 in your browser.
 
 Try entering code from [examples]('./tree/master/examples').
+
+To compile, press Shift+Enter (Keystrokes could be changed or added in next versions).
 
 ## All the subsequent runs
 
@@ -20,6 +22,6 @@ For the moment, `iElm` puts everything into `build` directory, later I will chan
 
 ## Terminology
 
-* _Chunk_ is a callable line of Elm code, an expression; it is not allowed to define such expressions on the top level (i.e. w/o indentation) of a common Elm file, but in case of iElm — it is the only way to actually evaluate this expression;
+* _Chunk_ is a callable line of Elm code, an expression; it is not allowed to define such expressions on the top level (i.e. w/o indentation) in a common Elm file, _but_ in case of IElm — it is the only way to actually evaluate this expression;
 * _Screen_ combines two concepts in one: a block of code with Elm-style imports, Elm-style definitions and _"Chunks"_, and preview of this code, where all these _chunks_ are evaluated and could be observed and controlled;
 * _Cell_ is the result of single _Chunk_ evaluation, i.e. the result of the expression;
