@@ -65,7 +65,8 @@ renderEntityAt position atom entity =
 renderControllable : (Inputs -> a -> Html Action) -> Inputs -> T.TypeAtom -> a -> Html Action
 renderControllable valueRenderer inputs atom value =
     div [ class "cell" ]
-        [ (Array.indexedMap renderInput inputs)
+        [ [ T.render atom ] |> div [ class "cell_type" ]
+        , (Array.indexedMap renderInput inputs)
           |> Array.toList
           |> div [ class "cell_inputs" ]
         , [ valueRenderer inputs value ]

@@ -14,7 +14,7 @@ const inputsMap = {
 const inputDefaults = {
     'IInteger': '0',
     'IFloat': '0.0',
-    'IText': '"test"',
+    'IText': '""',
     'IBool': 'false'
 }
 
