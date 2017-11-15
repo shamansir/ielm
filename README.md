@@ -8,7 +8,7 @@ Install Elm globally using `npm install -g elm`, then run `npm install` in this 
 
 Run `npm start` and then open http://localhost:8080 in your browser.
 
-Try entering code from [examples]('./tree/master/examples').
+Try entering code from [examples](./examples).
 
 To compile, press Shift+Enter (Keystrokes could be changed or added in next versions).
 
