@@ -26,7 +26,7 @@ class RevlDocument {
     this.definitions[screenId] = [];
     this.chunks[screenId] = [];
 
-    const sortedContent = this.blockReader.parse(content.split('\n'));
+    const sortedContent = this.blockReader.parse(content.split('\n').map(trimTrailingSpace));
 
     this.imports[screenId] = sortedContent.imports;
     this.definitions[screenId] = sortedContent.definitions;
@@ -47,6 +47,10 @@ class RevlDocument {
                           this.imports[screenId], this.chunks[screenId]);
   }
 
+}
+
+function trimTrailingSpace(s) {
+  return s.replace(/\s+$/, '')
 }
 
 function isImport(line) {
