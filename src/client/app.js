@@ -22,7 +22,8 @@ const codemirrorOptions = {
   value: '',
   mode: 'elm',
   lineNumbers: true,
-  autofocus: true
+  autofocus: true,
+  indentWithTabs: false
 };
 
 function refresh() {
@@ -89,6 +90,27 @@ class App {
 
     codemirrorInstance.on('change', () => {
       tabPanelInstance.informChanged();
+    });
+
+    // Codemirror indents with Tabs by default and even considering the option
+    // `indentWithTabs`, keeps doing so. Here is the implementation to always do it
+    // with spaces instead.
+    // Source: https://github.com/codemirror/CodeMirror/issues/988#issuecomment-40874237
+    codemirrorInstance.addKeyMap({
+      Tab: (cm) => {
+        if (cm.somethingSelected()) {
+          cm.indentSelection("add");
+          return;
+        }
+
+        if (cm.options.indentWithTabs)
+          cm.replaceSelection("\t", "end", "+input");
+        else
+          cm.execCommand("insertSoftTab");
+      },
+      "Shift-Tab": (cm) => {
+        cm.indentSelection("subtract");
+      }
     });
 
     this.screenCount++;
