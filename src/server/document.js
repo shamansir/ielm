@@ -63,7 +63,7 @@ function isTypeDeclaration(line) {
 }
 
 function isDefinition(line) {
-  return (line.match(/^(\w+\s*)+=/) != null) ||
+  return (line.match(/^([\w{}()\[\]]+\s*)+=/) != null) ||
          (line.indexOf('-- ') == 0) ||
          (line.indexOf('{- ') == 0); // FIXME: store comments separately
 }
