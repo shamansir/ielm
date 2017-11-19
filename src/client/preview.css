@@ -27,6 +27,7 @@
     color: brown;
     font-family: monospace;
     height: auto;
+    white-space: pre;
 }
 
 .add-screen {
