@@ -22,7 +22,7 @@ const adaptConfig = (bodyJson) => {
     user: bodyJson.user || "user",
     package: bodyJson.package || "project",
     packageVer: bodyJson.packageVer || "1.0.0",
-    workDir: bodyJson.workDir || "./build"
+    workDir: bodyJson.workDir || "./output"
   }
 }
 
