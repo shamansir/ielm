@@ -14,11 +14,19 @@ To compile, press Shift+Enter (Keystrokes could be changed or added in next vers
 
 ## All the subsequent runs
 
-You may run `npm run quick-start` every next time instead of `npm start`, it is a way to avoid cleaning `elm-stuff` and re-installing the Elm packages which were already installed.
+You may run `npm run quick-start` every next time instead of `npm start`, at least while you re-use the same Elm packages bundle: it is a way to avoid cleaning `elm-stuff` and re-installing the Elm packages which were already installed.
 
 ## Adding a package
 
-For the moment, `iElm` puts everything into `build` directory, later I will change the logic to make it work from your project (like `elm-reactor`) so you'll be able to import all the packages used in your project. For now, change `src/server/elm-package.sample.json` to add wanted package.
+For the moment, `iElm` puts everything into `output` directory, later I will change the logic to make it work from your project (like `elm-reactor`) so you'll be able to import all the packages used in your project. For now, change `src/server/elm-package.sample.json` to add wanted package.
+
+## Building `ielm.js`
+
+Just execute `npm run build`.
+
+## Testing a build
+
+The commands described above start the `webpack-dev-server`, so if you want test how production-compiled `ielm.js` works by itself, you may prefer to run `npm run test-build` (and `npm run quick-test-build` for subsequest runs, similarly to the above)
 
 ## Terminology
 
