@@ -26,7 +26,7 @@ Just execute `npm run build`.
 
 ## Testing a build
 
-The commands described above start the `webpack-dev-server`, so if you want test how production-compiled `ielm.js` works by itself, you may prefer to run `npm run test-build` (and `npm run quick-test-build` for subsequest runs, similarly to the above)
+The commands described above start the `webpack-dev-server`, so if you want test how production-compiled `ielm.js` works by itself, you may prefer to run `npm run test-build` (and `npm run quick-test-build` for subsequest runs, similarly to the above).
 
 ## Terminology
 

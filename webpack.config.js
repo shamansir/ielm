@@ -7,7 +7,7 @@ module.exports = {
     },
 
     output: {
-      filename: '[name].js',
+      filename: 'ielm.js',
     },
 
     module: {
