@@ -26,32 +26,6 @@ const codemirrorOptions = {
   indentWithTabs: false
 };
 
-function refresh() {
-  return fetch('http://localhost:3000/refresh', {
-    method: "GET"
-  });
-}
-
-function compile(content, screenId) {
-  return fetch('http://localhost:3000/compile', {
-    method: "POST",
-    body: JSON.stringify({
-      user: "user",
-      package: "project",
-      packageVer: "1.0.0",
-      elmVer: "0.18.0",
-      screenId: screenId,
-      document: content
-    }),
-    headers: {
-      "Content-Type": "application/json"
-    },
-    credentials: "same-origin"
-  }).then(function(response) {
-    return response.json()
-  });
-}
-
 class App {
 
   constructor() {
@@ -158,6 +132,43 @@ class App {
   }
 
 }
+
+const apiEndPoint = 'http://localhost:3000';
+
+function refresh() {
+  return fetch(`${apiEndPoint}/refresh`, {
+    method: "GET"
+  }).then(handleFetchError);
+}
+
+function compile(content, screenId) {
+  return fetch(`${apiEndPoint}/compile`, {
+    method: "POST",
+    body: JSON.stringify({
+      user: "user",
+      package: "project",
+      packageVer: "1.0.0",
+      elmVer: "0.18.0",
+      screenId: screenId,
+      document: content
+    }),
+    headers: {
+      "Content-Type": "application/json"
+    },
+    credentials: "same-origin"
+  }).then(handleFetchError)
+    .then(function(response) {
+      return response.json()
+    });
+}
+
+function handleFetchError(response) {
+  if (!response.ok) {
+    return { error: `Request failed. Ensure server is connected: ${response.statusText}` };
+  }
+  return response;
+}
+
 
 module.exports = App;
 
