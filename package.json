@@ -22,20 +22,12 @@
     "webpack-dev-server": "^2.9.1"
   },
   "scripts": {
-    "build": "webpack",
-    "test-build": "npm run clean-output && npm run create-output-dir && npm run quick-test-build",
-    "quick-test-build": "npm run build && npm run copy-components && npm run copy-elm-package && npm run install-packages && npm run start-server & npm run start-client",
-    "create-output-dir": "mkdir ./output",
-    "clean-output": "rm -Rf ./output",
-    "copy-components": "cp -R ./src/server/Component ./output",
-    "copy-elm-package": "cp ./src/server/elm-package.sample.json ./output/elm-package.json",
-    "install-packages": "cd ./output && elm-package install --yes && cd ..",
-    "start-server": "node ./src/server/server.js",
-    "start-client": "./node_modules/.bin/node-simplehttpserver . 8080",
-    "start-dev-client": "./node_modules/.bin/webpack-dev-server",
-    "quick-start": "npm run copy-components && npm run copy-elm-package && npm run install-packages && npm run start-server & npm run start-dev-client",
-    "start": "npm run clean-output && npm run create-output-dir && npm run quick-start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node ./cli.js build",
+    "start": "node ./cli.js run",
+    "quick-start": "node ./cli.js quick-run",
+    "dev-start": "node ./cli.js dev-run",
+    "quick-dev-start": "node ./cli.js quick-dev-run",
+    "test": "node ./cli.js test && exit 1"
   },
   "repository": {
     "type": "git",

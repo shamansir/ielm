@@ -1,10 +1,25 @@
+const fs = require('fs');
 const cpp = require('child-process-promise');
-
 const copy = require('recursive-copy');
 const rimraf = require('rimraf');
 
 const currentPath = process.cwd();
 // TODO iElm npm path
+
+let commandToRun = 'run';
+if (process.argv && process.argv.length) {
+    process.argv.forEach((arg) => {
+        if ((arg === 'build') ||
+            (arg === 'run') ||
+            (arg === 'quick-run') ||
+            (arg === 'run-dev') ||
+            (arg === 'quick-run-dev')) {
+                commandToRun = arg;
+            }
+    })
+}
+
+console.log(`:: ${commandToRun}`);
 
 const outputDirName = 'output';
 const outputDir = `./${outputDirName}`;
@@ -25,19 +40,20 @@ function build() {
     return execInPromise('webpack');
 }
 
-function testBuild() {
+function run() {
     return cleanOutput()
         .then(createOutputDir)
-        .then(quickTestBuild);
+        .then(quickRun);
 }
 
-function quickTestBuild() {
+function quickRun() {
     return build()
         .then(copyComponents)
         .then(copyElmPackage)
         .then(installPackages)
-        .then(startServer)
-        .then(startClient);
+        .then(() => {
+            return Promise.all([ startServer(), startClient() ]);
+        });
 }
 
 function createOutputDir() {
@@ -77,6 +93,7 @@ function copyElmPackage() {
 function installPackages() {
     // cd ./output && elm-package install --yes && cd ..
     return chdirInPromise(outputDir)
+        .then(() => { console.log(':: install Elm packages.'); })
         .then(execInPromise('elm-package', [ 'install', '--yes' ]))
         .then(chdirInPromise('..'));
 }
@@ -99,7 +116,7 @@ function startDevClient() {
     return execInPromise(webpackDevServerBin);
 }
 
-function quickStart() {
+function quickRunDev() {
     return copyComponents()
         .then(copyElmPackage)
         .then(installPackages)
@@ -108,10 +125,10 @@ function quickStart() {
         });
 }
 
-function start() {
+function runDev() {
     return cleanOutput()
         .then(createOutputDir)
-        .then(quickStart);
+        .then(quickRunDev);
 }
 
 function test() {
@@ -119,7 +136,7 @@ function test() {
 }
 
 function execInPromise(command, args) {
-    console.log(`:: execute '${command}' with arguments: '${args}'.`);
+    //console.log(`:: execute '${command}' with arguments: '${args}'.`);
     const promise = cpp.spawn(command, args || []);
     const childProcess = promise.childProcess;
     childProcess.stdout.on('data', function (data) {
@@ -128,15 +145,13 @@ function execInPromise(command, args) {
     childProcess.stderr.on('data', function (data) {
         console.log(`${command} error :: ${data.toString()}`);
     });
-    return promise.then(() => {
-        console.log(`:: '${command}' successfully executed.`);
-    });
+    return promise;
 }
 
 function chdirInPromise(path) {
     return new Promise((resolve, reject) => {
         try {
-            console.log(`:: change directory to '${path}'.`);
+            //console.log(`:: change directory to '${path}'.`);
             process.chdir(path);
             resolve();
         } catch(e) {
@@ -155,9 +170,17 @@ function rimrafInPromise(path) {
                 resolve();
             }
         });
-    }).then(() => {
-        console.log(`:: '${path}' was cleaned.`);
     });
 }
 
-quickStart();
+if (commandToRun === 'build') {
+    build();
+} else if (commandToRun === 'run') {
+    run();
+} else if (commandToRun === 'quick-run') {
+    quickRun();
+} else if (commandToRun === 'run-dev') {
+    runDev();
+} else if (commandToRun === 'quick-run-dev') {
+    quickRunDev();
+}

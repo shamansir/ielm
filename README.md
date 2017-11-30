@@ -24,9 +24,17 @@ For the moment, `iElm` puts everything into `output` directory, later I will cha
 
 Just execute `npm run build`.
 
-## Testing a build
+## Development
 
-The commands described above start the `webpack-dev-server`, so if you want test how production-compiled `ielm.js` works by itself, you may prefer to run `npm run test-build` (and `npm run quick-test-build` for subsequest runs, similarly to the above).
+The commands described above start the `simplehttpserver`, so if you want to do some development, you need to start `webpack-dev-server` instead, just do `npm run dev-start`.
+
+## CLI
+
+* `npm start` is the same as doing `node ./cli.js run`.
+* `npm run quick-start` is the same as doing `node ./cli.js quick-run`.
+* `npm run dev-start` is the same as doing `node ./cli.js dev-run`.
+* `npm run quick-dev-start` is the same as doing `node ./cli.js quick-dev-run`.
+* `npm run build` is the same as doing `node ./cli.js build`.
 
 ## Terminology
 
