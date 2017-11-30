@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "array-unique": "^0.3.2",
+    "child-process-promise": "^2.2.1",
     "codemirror": "^5.32.0",
     "exit-hook": "^1.1.1",
     "node-elm-repl": "^3.5.0",

@@ -1,4 +1,4 @@
-const cp = require('child_process');
+const cpp = require('child-process-promise');
 
 const copy = require('recursive-copy');
 const rimraf = require('rimraf');
@@ -18,6 +18,7 @@ const simpleHttpServerPort = 8080;
 const webpackDevServerBin = `${npmBinDir}/webpack-dev-server`;
 const elmPackageSource = `${serverDir}/elm-package.sample.json`;
 const elmPackageDest = `${outputDir}/elm-package.json`;
+const componentsDest = `${outputDir}/Component`;
 
 function build() {
     // webpack
@@ -41,17 +42,18 @@ function quickTestBuild() {
 
 function createOutputDir() {
     // mkdir ./output
+    console.log(':: create output directory.');
     return new Promise((resolve, reject) => {
         try {
             if (!fs.existsSync(outputDir)) {
                 fs.mkdirSync(outputDir);
-                resolve();
-            } else {
-                resolve();
             }
+            resolve();
         } catch(e) {
             reject(e);
         }
+    }).then(() => {
+        console.log(`:: output directory was cleaned.`);
     });
 }
 
@@ -62,42 +64,48 @@ function cleanOutput() {
 
 function copyComponents() {
     // cp -R ./src/server/Component ./output
-    return copy(componentsDir, outputDir);
+    console.log(':: copy components.');
+    return copy(componentsDir, componentsDest, { overwrite: true });
 }
 
 function copyElmPackage() {
     // cp ./src/server/elm-package.sample.json ./output/elm-package.json
-    return copy(elmPackageSource, elmPackageDest);
+    console.log(':: copy elm-package.json.');
+    return copy(elmPackageSource, elmPackageDest, { overwrite: true });
 }
 
 function installPackages() {
     // cd ./output && elm-package install --yes && cd ..
     return chdirInPromise(outputDir)
-        .then(execInPromise('elm-package install --yes'))
+        .then(execInPromise('elm-package', [ 'install', '--yes' ]))
         .then(chdirInPromise('..'));
 }
 
 function startServer() {
     // node ./src/server/server.js
-    return execInPromise(`node ${serverScript}`);
+    console.log(':: start server.');
+    return execInPromise('node', [ serverScript ]);
 }
 
 function startClient() {
     // ./node_modules/.bin/node-simplehttpserver . 8080
-    return execInPromise(`${simpleHttpServerBin} . ${simpleHttpServerPort}`);
+    console.log(':: start client.');
+    return execInPromise(simpleHttpServerBin, [ '.', simpleHttpServerPort ]);
 }
 
 function startDevClient() {
     // ./node_modules/.bin/webpack-dev-server
-    return execInPromise(`${webpackDevServerBin}`);
+    console.log(':: start development client.');
+    return execInPromise(webpackDevServerBin);
 }
 
 function quickStart() {
     return copyComponents()
         .then(copyElmPackage)
         .then(installPackages)
-        .then(startServer)
-        .then(startDevClient);
+        .then(() => {
+            return Promise.all([ startServer(), startDevClient() ]);
+        });
 }
 
 function start() {
@@ -110,21 +118,25 @@ function test() {
     throw new Error("Error: no test specified");
 }
 
-function execInPromise(command) {
-    return new Promise((resolve, reject) => {
-        cp.exec(command, (error) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve();
-            }
-        });
+function execInPromise(command, args) {
+    console.log(`:: execute '${command}' with arguments: '${args}'.`);
+    const promise = cpp.spawn(command, args || []);
+    const childProcess = promise.childProcess;
+    childProcess.stdout.on('data', function (data) {
+        //console.log(`${command} :: ${data.toString()}`);
+    });
+    childProcess.stderr.on('data', function (data) {
+        console.log(`${command} error :: ${data.toString()}`);
+    });
+    return promise.then(() => {
+        console.log(`:: '${command}' successfully executed.`);
     });
 }
 
 function chdirInPromise(path) {
     return new Promise((resolve, reject) => {
         try {
+            console.log(`:: change directory to '${path}'.`);
             process.chdir(path);
             resolve();
         } catch(e) {
@@ -135,6 +147,7 @@ function chdirInPromise(path) {
 
 function rimrafInPromise(path) {
     return new Promise((resolve, reject) => {
+        console.log(`:: clean '${path}'.`);
         rimraf(path, (error) => {
             if (error) {
                 reject(error);
@@ -142,9 +155,9 @@ function rimrafInPromise(path) {
                 resolve();
             }
         });
+    }).then(() => {
+        console.log(`:: '${path}' was cleaned.`);
     });
 }
 
-function alwaysResolve(resolve) {
-    resolve();
-}
+quickStart();
