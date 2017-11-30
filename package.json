@@ -9,6 +9,8 @@
     "exit-hook": "^1.1.1",
     "node-elm-repl": "^3.5.0",
     "node-simplehttpserver": "^0.2.7",
+    "recursive-copy": "^2.0.7",
+    "rimraf": "^2.6.2",
     "webpack": "^3.6.0",
     "whatwg-fetch": "^2.0.3"
   },
