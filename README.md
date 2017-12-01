@@ -4,29 +4,43 @@
 
 ## First run
 
-Install Elm globally using `npm install -g elm`, then run `npm install` in this direcory.
+Install Elm globally using `npm install -g elm`.
 
-Run `npm start` and then open http://localhost:8080 in your browser.
+Run `ielm` and then open http://localhost:8080 in your browser.
 
 Try entering code from [examples](./examples).
 
 To compile, press Shift+Enter (Keystrokes could be changed or added in next versions).
 
-## All the subsequent runs
+You may use the local install as well, then run `node ./node_modules/ielm/cli.js` from your project directory.
 
-You may run `npm run quick-start` every next time instead of `npm start`, at least while you re-use the same Elm packages bundle: it is a way to avoid cleaning `elm-stuff` and re-installing the Elm packages which were already installed.
+If you have a copy of `iElm` from Github or elsewhere, you may provide a path to its directory with `path=/path/to/ielm`.
+
+## Clean run
+
+You may run `npm run clean-start` to force cleaning `elm-stuff` in the ouput directory and re-installing even those Elm packages which were already installed.
 
 ## Adding a package
 
-For the moment, `iElm` puts everything into `output` directory, later I will change the logic to make it work from your project (like `elm-reactor`) so you'll be able to import all the packages used in your project. For now, change `src/server/elm-package.sample.json` to add wanted package.
+Just install additional package to your project, as you usually do it with `elm-package install`.
+
+## Development
+
+The commands described above start the `simplehttpserver` to host the compiled `ielm.js`, so if you want to do some development, you need to start `webpack-dev-server` instead — so just go to the package directory and do `npm run dev-start`.
+
+Adding `local` flag as a parameter allows you to start everything from the local directory instead of some external project. It is appended to `npm run dev-start` by default.
 
 ## Building `ielm.js`
 
-Just execute `npm run build`.
+Just execute `npm run build` in a package directory.
 
-## Testing a build
+## CLI
 
-The commands described above start the `webpack-dev-server`, so if you want test how production-compiled `ielm.js` works by itself, you may prefer to run `npm run test-build` (and `npm run quick-test-build` for subsequest runs, similarly to the above).
+* `npm start` is the same as doing `node ./cli run`.
+* `npm run clean-start` is the same as doing `node ./cli clean-run`.
+* `npm run dev-start` is the same as doing `node ./cli dev-run local`.
+* `npm run clean-dev-start` is the same as doing `node ./cli clean-dev-run local`.
+* `npm run build` is the same as doing `node ./cli build`.
 
 ## Terminology
 
