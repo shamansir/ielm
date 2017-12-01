@@ -6,20 +6,25 @@ const modulePath = require('npm-module-path');
 
 const userDirectory = process.cwd();
 
+let inModuleDir = false;
 let runLocally = false;
 let commandToRun = 'run';
+let ielmUserPath = undefined;
 if (process.argv && process.argv.length) {
     process.argv.forEach((arg) => {
         if ((arg === 'build') ||
             (arg === 'run') ||
-            (arg === 'quick-run') ||
+            (arg === 'clean-run') ||
             (arg === 'run-dev') ||
-            (arg === 'quick-run-dev') ||
+            (arg === 'clean-run-dev') ||
             (arg === 'test')) {
                 commandToRun = arg;
             };
         if (arg === 'local') {
             runLocally = true;
+        }
+        if (arg.startsWith('path=')) {
+            ielmUserPath = arg.substring(5);
         }
     })
 }
@@ -41,19 +46,12 @@ const elmPackageSource = `${serverDir}/elm-package.sample.json`;
 const elmPackageDest = `${outputDir}/elm-package.json`;
 const componentsDest = `${outputDir}/Component`;
 
-const inModuleDir = false;
-
 function build() {
     // webpack
     return goToModuleDir()
         .then(execInPromise('webpack'))
-        .then(goBackToOriginalDir);
-}
-
-function cleanRun() {
-    return goToModuleDir()
-        .then(cleanOutput)
-        .then(quickRun);
+        .then(goBackToOriginalDir)
+        .catch(reportError);
 }
 
 function run() {
@@ -66,17 +64,57 @@ function run() {
         .then(() => {
             return Promise.all([ startServer(), startClient() ]);
         })
-        .then(goBackToOriginalDir);
+        .then(goBackToOriginalDir)
+        .catch(reportError);
+}
+
+function cleanRun() {
+    return goToModuleDir()
+        .then(cleanOutput)
+        .then(quickRun)
+        .catch(reportError);
+}
+
+function runDev() {
+    return goToModuleDir()
+        .then(createOutputDir)
+        .then(copyComponents)
+        .then(copyElmPackage)
+        .then(installPackages)
+        .then(() => {
+            return Promise.all([ startServer(), startDevClient() ]);
+        })
+        .then(goBackToOriginalDir)
+        .catch(reportError);
+}
+
+function cleanRunDev() {
+    return goToModuleDir()
+        .then(cleanOutput)
+        .then(quickRunDev)
+        .catch(reportError);
+}
+
+function test() {
+    throw new Error("Error: no test specified");
 }
 
 function goToModuleDir() {
+    if (ielmUserPath) {
+        console.log(`:: iElm module path: ${ielmUserPath}`);
+        return chdirInPromise(ielmUserPath);
+    }
     return (inModuleDir || runLocally)
         ? Promise.resolve()
         : modulePath.resolveOne('ielm').then((ielmModulePath) => {
+            if (!ielmModulePath) {
+                return Promise.reject('iElm module path was not found. Ensure iElm is installed (globally or locally, no matter) or provide custom path with `path=` argument');
+            }
             inModuleDir = true;
             console.log(`:: iElm module path: ${ielmModulePath}`);
             return chdirInPromise(ielmModulePath);
-        }).catch(() => {
+        }).catch((err) => {
+            reportError(err);
             return Promise.resolve();
         })
 }
@@ -165,28 +203,6 @@ function startDevClient() {
     return execInPromise(webpackDevServerBin);
 }
 
-function runDev() {
-    return goToModuleDir()
-        .then(createOutputDir)
-        .then(copyComponents)
-        .then(copyElmPackage)
-        .then(installPackages)
-        .then(() => {
-            return Promise.all([ startServer(), startDevClient() ]);
-        })
-        .then(goBackToOriginalDir);
-}
-
-function cleanRunDev() {
-    return goToModuleDir()
-        .then(cleanOutput)
-        .then(quickRunDev);
-}
-
-function test() {
-    throw new Error("Error: no test specified");
-}
-
 function buildIfNotExists() {
     return new Promise((resolve, reject) => {
         try {
@@ -236,6 +252,10 @@ function rimrafInPromise(path) {
             }
         });
     });
+}
+
+function reportError(err) {
+    console.error(`xx Error: ${err}`);
 }
 
 if (commandToRun === 'build') {

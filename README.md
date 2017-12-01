@@ -14,6 +14,8 @@ To compile, press Shift+Enter (Keystrokes could be changed or added in next vers
 
 You may use the local install as well, then run `node ./node_modules/ielm/cli.js` from your project directory.
 
+If you have a copy of `iElm` from Github or elsewhere, you may provide a path to its directory with `path=/path/to/ielm`.
+
 ## Clean run
 
 You may run `npm run clean-start` to force cleaning `elm-stuff` in the ouput directory and re-installing even those Elm packages which were already installed.
@@ -25,6 +27,8 @@ Just install additional package to your project, as you usually do it with `elm-
 ## Development
 
 The commands described above start the `simplehttpserver` to host the compiled `ielm.js`, so if you want to do some development, you need to start `webpack-dev-server` instead — so just go to the package directory and do `npm run dev-start`.
+
+Adding `local` flag as a parameter allows you to start everything from the local directory instead of some external project. It is appended to `npm run dev-start` by default.
 
 ## Building `ielm.js`
 
