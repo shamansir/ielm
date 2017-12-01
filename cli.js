@@ -50,17 +50,16 @@ function build() {
         .then(goBackToOriginalDir);
 }
 
-function run() {
+function cleanRun() {
     return goToModuleDir()
         .then(cleanOutput)
-        .then(createOutputDir)
-        .then(quickRun)
-        .then(goBackToOriginalDir);
+        .then(quickRun);
 }
 
-function quickRun() {
+function run() {
     return goToModuleDir()
         .then(buildIfNotExists)
+        .then(createOutputDir)
         .then(copyComponents)
         .then(copyElmPackage)
         .then(installPackages)
@@ -166,8 +165,9 @@ function startDevClient() {
     return execInPromise(webpackDevServerBin);
 }
 
-function quickRunDev() {
+function runDev() {
     return goToModuleDir()
+        .then(createOutputDir)
         .then(copyComponents)
         .then(copyElmPackage)
         .then(installPackages)
@@ -177,12 +177,10 @@ function quickRunDev() {
         .then(goBackToOriginalDir);
 }
 
-function runDev() {
+function cleanRunDev() {
     return goToModuleDir()
         .then(cleanOutput)
-        .then(createOutputDir)
-        .then(quickRunDev)
-        .then(goBackToOriginalDir);
+        .then(quickRunDev);
 }
 
 function test() {
@@ -244,12 +242,12 @@ if (commandToRun === 'build') {
     build();
 } else if (commandToRun === 'run') {
     run();
-} else if (commandToRun === 'quick-run') {
-    quickRun();
+} else if (commandToRun === 'clean-run') {
+    cleanRun();
 } else if (commandToRun === 'run-dev') {
     runDev();
-} else if (commandToRun === 'quick-run-dev') {
-    quickRunDev();
+} else if (commandToRun === 'clean-run-dev') {
+    cleanRunDev();
 } else if (commandToRun === 'test') {
     test();
 }

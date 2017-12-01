@@ -25,13 +25,13 @@
   "scripts": {
     "build": "node ./cli.js build",
     "start": "node ./cli.js run",
-    "quick-start": "node ./cli.js quick-run",
+    "clean-start": "node ./cli.js clean-run",
     "dev-start": "node ./cli.js dev-run local",
-    "quick-dev-start": "node ./cli.js quick-dev-run local",
+    "clean-dev-start": "node ./cli.js clean-dev-run local",
     "test": "node ./cli.js test",
     "build-local": "node ./cli.js build local",
     "start-local": "node ./cli.js run local",
-    "quick-start-local": "node ./cli.js quick-run local"
+    "clean-start-local": "node ./cli.js clean-run local"
   },
   "repository": {
     "type": "git",
