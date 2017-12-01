@@ -36,11 +36,11 @@ Just execute `npm run build` in a package directory.
 
 ## CLI
 
-* `npm start` is the same as doing `node ./cli.js run`.
-* `npm run clean-start` is the same as doing `node ./cli.js clean-run`.
-* `npm run dev-start` is the same as doing `node ./cli.js dev-run local`.
-* `npm run clean-dev-start` is the same as doing `node ./cli.js clean-dev-run local`.
-* `npm run build` is the same as doing `node ./cli.js build`.
+* `npm start` is the same as doing `node ./cli run`.
+* `npm run clean-start` is the same as doing `node ./cli clean-run`.
+* `npm run dev-start` is the same as doing `node ./cli dev-run local`.
+* `npm run clean-dev-start` is the same as doing `node ./cli clean-dev-run local`.
+* `npm run build` is the same as doing `node ./cli build`.
 
 ## Terminology
 

@@ -1,8 +1,11 @@
 {
   "name": "ielm",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Interactive Elm",
-  "main": "index.js",
+  "main": "ielm.js",
+  "bin": {
+    "ielm": "./cli"
+  },
   "dependencies": {
     "array-unique": "^0.3.2",
     "child-process-promise": "^2.2.1",
