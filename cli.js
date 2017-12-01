@@ -14,7 +14,8 @@ if (process.argv && process.argv.length) {
             (arg === 'run') ||
             (arg === 'quick-run') ||
             (arg === 'run-dev') ||
-            (arg === 'quick-run-dev')) {
+            (arg === 'quick-run-dev') ||
+            (arg === 'test')) {
                 commandToRun = arg;
             };
         if (arg === 'local') {
@@ -76,6 +77,8 @@ function goToModuleDir() {
             inModuleDir = true;
             console.log(`:: iElm module path: ${ielmModulePath}`);
             return chdirInPromise(ielmModulePath);
+        }).catch(() => {
+            return Promise.resolve();
         })
 }
 
@@ -112,7 +115,18 @@ function copyComponents() {
 function copyElmPackage() {
     // cp ./src/server/elm-package.sample.json ./output/elm-package.json
     console.log(':: copy elm-package.json.');
-    return copy(elmPackageSource, elmPackageDest, { overwrite: true });
+    const sample = require(elmPackageSource);
+    if (!sample['source-directories']) sample['source-directories'] = [];
+    sample['source-directories'].push(userDirectory);
+    return new Promise((resolve, reject) => {
+        fs.writeFile(elmPackageDest, JSON.stringify(sample), 'utf8', (err) => {
+            if (!err) {
+                resolve();
+            } else {
+                reject(err);
+            }
+        });
+    });
 }
 
 function installPackages() {
@@ -225,4 +239,6 @@ if (commandToRun === 'build') {
     runDev();
 } else if (commandToRun === 'quick-run-dev') {
     quickRunDev();
+} else if (commandToRun === 'test') {
+    test();
 }
