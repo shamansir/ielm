@@ -10,6 +10,7 @@
     "exit-hook": "^1.1.1",
     "node-elm-repl": "^3.5.0",
     "node-simplehttpserver": "^0.2.7",
+    "npm-module-path": "^2.0.2",
     "recursive-copy": "^2.0.7",
     "rimraf": "^2.6.2",
     "webpack": "^3.6.0",
@@ -25,9 +26,12 @@
     "build": "node ./cli.js build",
     "start": "node ./cli.js run",
     "quick-start": "node ./cli.js quick-run",
-    "dev-start": "node ./cli.js dev-run",
-    "quick-dev-start": "node ./cli.js quick-dev-run",
-    "test": "node ./cli.js test && exit 1"
+    "dev-start": "node ./cli.js dev-run local",
+    "quick-dev-start": "node ./cli.js quick-dev-run local",
+    "test": "node ./cli.js test",
+    "build-local": "node ./cli.js build local",
+    "start-local": "node ./cli.js run local",
+    "quick-start-local": "node ./cli.js quick-run local"
   },
   "repository": {
     "type": "git",

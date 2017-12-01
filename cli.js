@@ -2,10 +2,11 @@ const fs = require('fs');
 const cpp = require('child-process-promise');
 const copy = require('recursive-copy');
 const rimraf = require('rimraf');
+const modulePath = require('npm-module-path');
 
-const currentPath = process.cwd();
-// TODO iElm npm path
+const userDirectory = process.cwd();
 
+let runLocally = false;
 let commandToRun = 'run';
 if (process.argv && process.argv.length) {
     process.argv.forEach((arg) => {
@@ -15,7 +16,10 @@ if (process.argv && process.argv.length) {
             (arg === 'run-dev') ||
             (arg === 'quick-run-dev')) {
                 commandToRun = arg;
-            }
+            };
+        if (arg === 'local') {
+            runLocally = true;
+        }
     })
 }
 
@@ -26,6 +30,7 @@ const outputDir = `./${outputDirName}`;
 const serverDir = './src/server';
 const npmBinDir = './node_modules/.bin/';
 
+const ielmBinary = './ielm.js';
 const componentsDir = `${serverDir}/Component`;
 const serverScript = `${serverDir}/server.js`;
 const simpleHttpServerBin = `${npmBinDir}/node-simplehttpserver`;
@@ -35,25 +40,47 @@ const elmPackageSource = `${serverDir}/elm-package.sample.json`;
 const elmPackageDest = `${outputDir}/elm-package.json`;
 const componentsDest = `${outputDir}/Component`;
 
+const inModuleDir = false;
+
 function build() {
     // webpack
-    return execInPromise('webpack');
+    return goToModuleDir()
+        .then(execInPromise('webpack'))
+        .then(goBackToOriginalDir);
 }
 
 function run() {
-    return cleanOutput()
+    return goToModuleDir()
+        .then(cleanOutput)
         .then(createOutputDir)
-        .then(quickRun);
+        .then(quickRun)
+        .then(goBackToOriginalDir);
 }
 
 function quickRun() {
-    return build()
+    return goToModuleDir()
+        .then(buildIfNotExists)
         .then(copyComponents)
         .then(copyElmPackage)
         .then(installPackages)
         .then(() => {
             return Promise.all([ startServer(), startClient() ]);
-        });
+        })
+        .then(goBackToOriginalDir);
+}
+
+function goToModuleDir() {
+    return (inModuleDir || runLocally)
+        ? Promise.resolve()
+        : modulePath.resolveOne('ielm').then((ielmModulePath) => {
+            inModuleDir = true;
+            console.log(`:: iElm module path: ${ielmModulePath}`);
+            return chdirInPromise(ielmModulePath);
+        })
+}
+
+function goBackToOriginalDir() {
+    return chdirInPromise(userDirectory);
 }
 
 function createOutputDir() {
@@ -68,8 +95,6 @@ function createOutputDir() {
         } catch(e) {
             reject(e);
         }
-    }).then(() => {
-        console.log(`:: output directory was cleaned.`);
     });
 }
 
@@ -117,22 +142,39 @@ function startDevClient() {
 }
 
 function quickRunDev() {
-    return copyComponents()
+    return goToModuleDir()
+        .then(copyComponents)
         .then(copyElmPackage)
         .then(installPackages)
         .then(() => {
             return Promise.all([ startServer(), startDevClient() ]);
-        });
+        })
+        .then(goBackToOriginalDir);
 }
 
 function runDev() {
-    return cleanOutput()
+    return goToModuleDir()
+        .then(cleanOutput)
         .then(createOutputDir)
-        .then(quickRunDev);
+        .then(quickRunDev)
+        .then(goBackToOriginalDir);
 }
 
 function test() {
     throw new Error("Error: no test specified");
+}
+
+function buildIfNotExists() {
+    return new Promise((resolve, reject) => {
+        try {
+            if (!fs.existsSync(ielmBinary)) {
+                return build();
+            }
+            resolve();
+        } catch(e) {
+            reject(e);
+        }
+    });
 }
 
 function execInPromise(command, args) {
