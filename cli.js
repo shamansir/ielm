@@ -116,10 +116,21 @@ function copyElmPackage() {
     // cp ./src/server/elm-package.sample.json ./output/elm-package.json
     console.log(':: copy elm-package.json.');
     const sample = require(elmPackageSource);
+
     if (!sample['source-directories']) sample['source-directories'] = [];
     sample['source-directories'].push(userDirectory);
+
+    let sourceDependencies = sample.dependencies;
+    let userDependencies = {};
+    try {
+        userDependencies = require(`${userDirectory}/elm-package.json`).dependencies || {};
+    } catch(e) {}
+    Object.keys(userDependencies).forEach((dependencyName) => {
+        sourceDependencies[dependencyName] = userDependencies[dependencyName];
+    });
+
     return new Promise((resolve, reject) => {
-        fs.writeFile(elmPackageDest, JSON.stringify(sample), 'utf8', (err) => {
+        fs.writeFile(elmPackageDest, JSON.stringify(sample, null, '\t'), 'utf8', (err) => {
             if (!err) {
                 resolve();
             } else {
@@ -139,19 +150,19 @@ function installPackages() {
 
 function startServer() {
     // node ./src/server/server.js
-    console.log(':: start server.');
+    console.log(':: start server at http://localhost:3000.');
     return execInPromise('node', [ serverScript ]);
 }
 
 function startClient() {
     // ./node_modules/.bin/node-simplehttpserver . 8080
-    console.log(':: start client.');
+    console.log(':: start client at http://localhost:8080.');
     return execInPromise(simpleHttpServerBin, [ '.', simpleHttpServerPort ]);
 }
 
 function startDevClient() {
     // ./node_modules/.bin/webpack-dev-server
-    console.log(':: start development client.');
+    console.log(':: start development client at http://localhost:8080.');
     return execInPromise(webpackDevServerBin);
 }
 
