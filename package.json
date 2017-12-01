@@ -26,15 +26,15 @@
     "webpack-dev-server": "^2.9.1"
   },
   "scripts": {
-    "build": "node ./cli.js build",
-    "start": "node ./cli.js run",
-    "clean-start": "node ./cli.js clean-run",
-    "dev-start": "node ./cli.js dev-run local",
-    "clean-dev-start": "node ./cli.js clean-dev-run local",
-    "test": "node ./cli.js test",
-    "build-local": "node ./cli.js build local",
-    "start-local": "node ./cli.js run local",
-    "clean-start-local": "node ./cli.js clean-run local"
+    "build": "node ./cli build",
+    "start": "node ./cli run",
+    "clean-start": "node ./cli clean-run",
+    "dev-start": "node ./cli dev-run local",
+    "clean-dev-start": "node ./cli clean-dev-run local",
+    "test": "node ./cli test",
+    "build-local": "node ./cli build local",
+    "start-local": "node ./cli run local",
+    "clean-start-local": "node ./cli clean-run local"
   },
   "repository": {
     "type": "git",

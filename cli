@@ -36,7 +36,7 @@ console.log(`:: ${commandToRun}`);
 const outputDirName = 'output';
 const outputDir = `./${outputDirName}`;
 const serverDir = './src/server';
-const npmBinDir = './node_modules/.bin/';
+const npmBinDir = './node_modules/.bin';
 
 const ielmBinary = './ielm.js';
 const componentsDir = `${serverDir}/Component`;
