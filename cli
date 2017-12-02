@@ -1,17 +1,25 @@
 #!/usr/bin/env node
 
+const userDirectory = process.cwd();
+
 const fs = require('fs');
 const cpp = require('child-process-promise');
 const copy = require('recursive-copy');
 const rimraf = require('rimraf');
 const modulePath = require('npm-module-path');
+const which = require('npm-which')(userDirectory);
+const tmp = require('tmp');
 
-const userDirectory = process.cwd();
+const outputDir = tmp.dirSync().name;
 
-let inModuleDir = false;
-let runLocally = false;
-let commandToRun = 'run';
-let ielmUserPath = undefined;
+const state = {
+    inModuleDir : false,
+    ielmModulePath: undefined,
+    runLocally: false,
+    commandToRun: 'run',
+    ielmUserPath: undefined
+};
+
 if (process.argv && process.argv.length) {
     process.argv.forEach((arg) => {
         if ((arg === 'build') ||
@@ -20,30 +28,32 @@ if (process.argv && process.argv.length) {
             (arg === 'run-dev') ||
             (arg === 'clean-run-dev') ||
             (arg === 'test')) {
-                commandToRun = arg;
+                state.commandToRun = arg;
             };
         if (arg === 'local') {
-            runLocally = true;
+            state.runLocally = true;
         }
         if (arg.startsWith('path=')) {
-            ielmUserPath = arg.substring(5);
+            state.ielmUserPath = arg.substring(5);
         }
     })
 }
 
-console.log(`:: ${commandToRun}`);
+console.log(`:: ${state.commandToRun}`);
 
-const outputDirName = 'output';
-const outputDir = `./${outputDirName}`;
-const serverDir = './src/server';
-const npmBinDir = './node_modules/.bin';
+const serverDir = 'src/server';
+const npmBinLocalDir = 'node_modules/.bin';
 
-const ielmBinary = './ielm.js';
+const ielmBinary = 'ielm.js';
 const componentsDir = `${serverDir}/Component`;
 const serverScript = `${serverDir}/server.js`;
-const simpleHttpServerBin = `${npmBinDir}/node-simplehttpserver`;
+const simpleHttpServerBin = state.runLocally
+    ? `${npmBinLocalDir}/node-simplehttpserver`
+    : which.sync('node-simplehttpserver');
 const simpleHttpServerPort = 8080;
-const webpackDevServerBin = `${npmBinDir}/webpack-dev-server`;
+const webpackDevServerBin = state.runLocally
+    ? `${npmBinLocalDir}/webpack-dev-server`
+    : which.sync('webpack-dev-server');
 const elmPackageSource = `${serverDir}/elm-package.sample.json`;
 const elmPackageDest = `${outputDir}/elm-package.json`;
 const componentsDest = `${outputDir}/Component`;
@@ -102,23 +112,7 @@ function test() {
 }
 
 function goToModuleDir() {
-    if (ielmUserPath) {
-        console.log(`:: iElm module path: ${ielmUserPath}`);
-        return chdirInPromise(ielmUserPath);
-    }
-    return (inModuleDir || runLocally)
-        ? Promise.resolve()
-        : modulePath.resolveOne('ielm').then((ielmModulePath) => {
-            if (!ielmModulePath) {
-                return Promise.reject('iElm module path was not found. Ensure iElm is installed (globally or locally, no matter) or provide custom path with `path=` argument');
-            }
-            inModuleDir = true;
-            console.log(`:: iElm module path: ${ielmModulePath}`);
-            return chdirInPromise(ielmModulePath);
-        }).catch((err) => {
-            reportError(err);
-            return Promise.resolve();
-        })
+    return chdirInPromise(state.ielmModulePath);
 }
 
 function goBackToOriginalDir() {
@@ -153,22 +147,22 @@ function copyComponents() {
 
 function copyElmPackage() {
     // cp ./src/server/elm-package.sample.json ./output/elm-package.json
-    console.log(':: copy elm-package.json.');
-    const sample = require(elmPackageSource);
-
-    if (!sample['source-directories']) sample['source-directories'] = [];
-    sample['source-directories'].push(userDirectory);
-
-    let sourceDependencies = sample.dependencies;
-    let userDependencies = {};
-    try {
-        userDependencies = require(`${userDirectory}/elm-package.json`).dependencies || {};
-    } catch(e) {}
-    Object.keys(userDependencies).forEach((dependencyName) => {
-        sourceDependencies[dependencyName] = userDependencies[dependencyName];
-    });
-
     return new Promise((resolve, reject) => {
+        console.log(':: copy elm-package.json.');
+        const sample = require(`./${elmPackageSource}`);
+
+        if (!sample['source-directories']) sample['source-directories'] = [];
+        sample['source-directories'].push(userDirectory);
+
+        let sourceDependencies = sample.dependencies;
+        let userDependencies = {};
+        try {
+            userDependencies = require(`${userDirectory}/elm-package.json`).dependencies || {};
+        } catch(e) {}
+        Object.keys(userDependencies).forEach((dependencyName) => {
+            sourceDependencies[dependencyName] = userDependencies[dependencyName];
+        });
+
         fs.writeFile(elmPackageDest, JSON.stringify(sample, null, '\t'), 'utf8', (err) => {
             if (!err) {
                 resolve();
@@ -184,7 +178,7 @@ function installPackages() {
     return chdirInPromise(outputDir)
         .then(() => { console.log(':: install Elm packages.'); })
         .then(execInPromise('elm-package', [ 'install', '--yes' ]))
-        .then(chdirInPromise('..'));
+        .then(chdirInPromise(state.ielmModulePath));
 }
 
 function startServer() {
@@ -260,16 +254,35 @@ function reportError(err) {
     console.error(`xx Error: ${err}`);
 }
 
-if (commandToRun === 'build') {
-    build();
-} else if (commandToRun === 'run') {
-    run();
-} else if (commandToRun === 'clean-run') {
-    cleanRun();
-} else if (commandToRun === 'run-dev') {
-    runDev();
-} else if (commandToRun === 'clean-run-dev') {
-    cleanRunDev();
-} else if (commandToRun === 'test') {
-    test();
+function runCommand(commandToRun) {
+    if (commandToRun === 'build') {
+        build();
+    } else if (commandToRun === 'run') {
+        run();
+    } else if (commandToRun === 'clean-run') {
+        cleanRun();
+    } else if (commandToRun === 'run-dev') {
+        runDev();
+    } else if (commandToRun === 'clean-run-dev') {
+        cleanRunDev();
+    } else if (commandToRun === 'test') {
+        test();
+    }
+}
+
+if (state.runLocally || state.ielmUserPath) {
+    state.ielmModulePath = state.ielmUserPath || './';
+    console.log(`:: iElm module path: ${ielmModulePath}`);
+    runCommand(state.commandToRun);
+} else {
+    modulePath.resolveOne('ielm').then((ielmModulePath) => {
+        state.ielmModulePath = ielmModulePath;
+        if (!ielmModulePath) {
+            return Promise.reject('iElm module path was not found. Ensure iElm is installed (globally or locally, no matter) or provide custom path with `path=` argument');
+        }
+        console.log(`:: iElm module path: ${ielmModulePath}`);
+        runCommand(state.commandToRun);
+    }).catch((err) => {
+        reportError(err);
+    });
 }
