@@ -1,6 +1,6 @@
 {
   "name": "ielm",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Interactive Elm",
   "main": "ielm.js",
   "bin": {
@@ -21,7 +21,6 @@
     "style-loader": "^0.19.0",
     "tmp": "0.0.33",
     "webpack": "^3.6.0",
-
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
