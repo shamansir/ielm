@@ -10,6 +10,7 @@
     "array-unique": "^0.3.2",
     "child-process-promise": "^2.2.1",
     "codemirror": "^5.32.0",
+    "css-loader": "^0.28.7",
     "exit-hook": "^1.1.1",
     "node-elm-repl": "^3.5.0",
     "node-simplehttpserver": "^0.2.7",
@@ -17,14 +18,13 @@
     "npm-which": "^3.0.1",
     "recursive-copy": "^2.0.7",
     "rimraf": "^2.6.2",
+    "style-loader": "^0.19.0",
     "tmp": "0.0.33",
     "webpack": "^3.6.0",
+
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
-    "css-loader": "^0.28.7",
-    "ignore-loader": "^0.1.2",
-    "style-loader": "^0.19.0",
     "webpack-dev-server": "^2.9.1"
   },
   "scripts": {
