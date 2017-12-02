@@ -61,7 +61,7 @@ const componentsDest = `${outputDir}/Component`;
 function build() {
     // webpack
     return goToModuleDir()
-        .then(execInPromise('webpack', [ '--output-path', outputDir ]))
+        .then(execInPromise('webpack', state.runLocally ? [] : [ '--output-path', outputDir ]))
         .then(goBackToOriginalDir)
         .catch(reportError);
 }
@@ -84,7 +84,7 @@ function run() {
 function cleanRun() {
     return goToModuleDir()
         .then(cleanOutput)
-        .then(quickRun)
+        .then(run)
         .catch(reportError);
 }
 
@@ -105,7 +105,7 @@ function runDev() {
 function cleanRunDev() {
     return goToModuleDir()
         .then(cleanOutput)
-        .then(quickRunDev)
+        .then(runDev)
         .catch(reportError);
 }
 
@@ -274,7 +274,7 @@ function runCommand(commandToRun) {
 
 if (state.runLocally || state.ielmUserPath) {
     state.ielmModulePath = state.ielmUserPath || './';
-    console.log(`:: iElm module path: ${ielmModulePath}`);
+    console.log(`:: iElm module path: ${state.ielmModulePath}`);
     runCommand(state.commandToRun);
 } else {
     modulePath.resolveOne('ielm').then((ielmModulePath) => {
@@ -282,7 +282,7 @@ if (state.runLocally || state.ielmUserPath) {
         if (!ielmModulePath) {
             return Promise.reject('iElm module path was not found. Ensure iElm is installed (globally or locally, no matter) or provide custom path with `path=` argument');
         }
-        console.log(`:: iElm module path: ${ielmModulePath}`);
+        console.log(`:: iElm module path: ${state.ielmModulePath}`);
         runCommand(state.commandToRun);
     }).catch((err) => {
         reportError(err);
