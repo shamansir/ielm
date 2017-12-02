@@ -61,15 +61,15 @@ const componentsDest = `${outputDir}/Component`;
 function build() {
     // webpack
     return goToModuleDir()
-        .then(execInPromise('webpack'))
+        .then(execInPromise('webpack', [ '--output-path', outputDir ]))
         .then(goBackToOriginalDir)
         .catch(reportError);
 }
 
 function run() {
     return goToModuleDir()
-        .then(buildIfNotExists)
         .then(createOutputDir)
+        .then(buildIfNotExists)
         .then(copyComponents)
         .then(copyElmPackage)
         .then(chdirInPromise(outputDir))
@@ -179,14 +179,14 @@ function installPackages() {
     // cd ./output && elm-package install --yes && cd ..
     return new Promise((resolve, reject) => {
         console.log(':: install Elm packages.');
-        return execInPromise('elm-package', [ 'install', '--yes' ]);
+        resolve(execInPromise('elm-package', [ 'install', '--yes' ]));
     });
 }
 
 function startServer() {
     // node ./src/server/server.js
     console.log(':: start server at http://localhost:3000.');
-    return execInPromise('node', [ (state.ielmModulePath + serverScript) ]);
+    return execInPromise('node', [ `${state.ielmModulePath}/${serverScript}` ]);
 }
 
 function startClient() {
@@ -204,8 +204,8 @@ function startDevClient() {
 function buildIfNotExists() {
     return new Promise((resolve, reject) => {
         try {
-            if (!fs.existsSync(ielmBinary)) {
-                return build();
+            if (!fs.existsSync(`${outputDir}/${ielmBinary}`)) {
+                resolve(build());
             }
             resolve();
         } catch(e) {
@@ -215,8 +215,7 @@ function buildIfNotExists() {
 }
 
 function execInPromise(command, args) {
-    console.log(`:: execute '${command}' with arguments: '${args}'.`);
-    //console.log('exec', command, process.cwd());
+    //console.log(`:: execute '${command}' with arguments: '${args}'.`);
     const promise = cpp.spawn(command, args || []);
     const childProcess = promise.childProcess;
     childProcess.stdout.on('data', function (data) {
