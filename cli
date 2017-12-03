@@ -123,17 +123,17 @@ function goBackToOriginalDir() {
 
 function createOutputDir() {
     // mkdir ./output
-    console.log(':: create output directory.');
-    return new Promise((resolve, reject) => {
-        try {
-            if (!fs.existsSync(outputDir)) {
-                fs.mkdirSync(outputDir);
+    return logAs('create output directory')
+        .then(new Promise((resolve, reject) => {
+            try {
+                if (!fs.existsSync(outputDir)) {
+                    fs.mkdirSync(outputDir);
+                }
+                resolve();
+            } catch(e) {
+                reject(e);
             }
-            resolve();
-        } catch(e) {
-            reject(e);
-        }
-    });
+        }));
 }
 
 function cleanOutput() {
@@ -143,14 +143,13 @@ function cleanOutput() {
 
 function copyComponents() {
     // cp -R ./src/server/Component ./output
-    console.log(':: copy components.');
-    return copy(componentsDir, componentsDest, { overwrite: true });
+    return logAs('copy components')
+        .then(copy(componentsDir, componentsDest, { overwrite: true }));
 }
 
 function copyElmPackage() {
     // cp ./src/server/elm-package.sample.json ./output/elm-package.json
-    return new Promise((resolve, reject) => {
-        console.log(':: copy elm-package.json.');
+    return logAs('copy elm-package.json').then(new Promise((resolve, reject) => {
         const sample = require(`./${elmPackageSource}`);
 
         if (!sample['source-directories']) sample['source-directories'] = [];
@@ -172,33 +171,31 @@ function copyElmPackage() {
                 reject(err);
             }
         });
-    });
+    }));
 }
 
 function installPackages() {
     // cd ./output && elm-package install --yes && cd ..
-    return new Promise((resolve, reject) => {
-        console.log(':: install Elm packages.');
-        resolve(execInPromise('elm-package', [ 'install', '--yes' ]));
-    });
+    return logAs('install Elm packages')
+        then(execInPromise('elm-package', [ 'install', '--yes' ]));
 }
 
 function startServer() {
     // node ./src/server/server.js
-    console.log(':: start server at http://localhost:3000.');
-    return execInPromise('node', [ `${state.ielmModulePath}/${serverScript}` ]);
+    return logAs('start server at http://localhost:3000')
+        .then(execInPromise('node', [ `${state.ielmModulePath}/${serverScript}` ]));
 }
 
 function startClient() {
     // ./node_modules/.bin/node-simplehttpserver . 8080
-    console.log(':: start client at http://localhost:8080.');
-    return execInPromise(simpleHttpServerBin, [ '.', simpleHttpServerPort ]);
+    return logAs('start client at http://localhost:8080')
+        .then(execInPromise(simpleHttpServerBin, [ '.', simpleHttpServerPort ]));
 }
 
 function startDevClient() {
     // ./node_modules/.bin/webpack-dev-server
-    console.log(':: start development client at http://localhost:8080.');
-    return execInPromise(webpackDevServerBin);
+    return logAs('start development client at http://localhost:8080.')
+        .then(execInPromise(webpackDevServerBin));
 }
 
 function buildIfNotExists() {
@@ -249,6 +246,13 @@ function rimrafInPromise(path) {
                 resolve();
             }
         });
+    });
+}
+
+function logAs(string) {
+    return new Promise((resolve, reject) => {
+        console.log(`:: ${string}.`);
+        resolve();
     });
 }
 
