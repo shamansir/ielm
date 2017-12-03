@@ -57,27 +57,30 @@ const webpackDevServerBin = state.runLocally
 const elmPackageSource = `${serverDir}/elm-package.sample.json`;
 const elmPackageDest = `${outputDir}/elm-package.json`;
 const componentsDest = `${outputDir}/Component`;
+const elmStuffDest = `${outputDir}/elm-stuff`;
 
 function build() {
     // webpack
     return goToModuleDir()
-        .then(execInPromise('webpack', state.runLocally ? [] : [ '--output-path', outputDir ]))
+        .then(() => execInPromise('webpack'))
         .then(goBackToOriginalDir)
         .catch(reportError);
 }
 
 function run() {
     return goToModuleDir()
-        .then(createOutputDir)
         .then(buildIfNotExists)
+        .then(createOutputDir)
         .then(copyComponents)
         .then(copyElmPackage)
-        .then(chdirInPromise(outputDir))
+        .then(goBackToOriginalDir)
+        .then(copyElmStuff)
+        .then(() => chdirInPromise(outputDir))
         .then(installPackages)
+        .then(() => chdirInPromise(state.ielmModulePath))
         .then(() => {
             return Promise.all([ startServer(), startClient() ]);
         })
-        .then(goBackToOriginalDir)
         .catch(reportError);
 }
 
@@ -93,12 +96,12 @@ function runDev() {
         .then(createOutputDir)
         .then(copyComponents)
         .then(copyElmPackage)
-        .then(chdirInPromise(outputDir))
+        .then(() => chdirInPromise(outputDir))
         .then(installPackages)
+        .then(goBackToOriginalDir)
         .then(() => {
             return Promise.all([ startServer(), startDevClient() ]);
         })
-        .then(goBackToOriginalDir)
         .catch(reportError);
 }
 
@@ -124,7 +127,7 @@ function goBackToOriginalDir() {
 function createOutputDir() {
     // mkdir ./output
     return logAs('create output directory')
-        .then(new Promise((resolve, reject) => {
+        .then(() => new Promise((resolve, reject) => {
             try {
                 if (!fs.existsSync(outputDir)) {
                     fs.mkdirSync(outputDir);
@@ -144,7 +147,22 @@ function cleanOutput() {
 function copyComponents() {
     // cp -R ./src/server/Component ./output
     return logAs('copy components')
-        .then(copy(componentsDir, componentsDest, { overwrite: true }));
+        .then(() =>
+            copy(`${state.ielmModulePath}/${componentsDir}`,
+                 componentsDest, { overwrite: true })
+        );
+}
+
+function copyElmStuff() {
+    // cp -R ./elm-stuff ./output
+    return logAs('copy elm-stuff')
+        .then(() => new Promise((resolve, reject) => {
+            if (fs.existsSync('./elm-stuff')) {
+                copy('./elm-stuff', elmStuffDest, { overwrite: true }).then(resolve);
+            } else {
+                resolve();
+            }
+        }));
 }
 
 function copyElmPackage() {
@@ -177,25 +195,26 @@ function copyElmPackage() {
 function installPackages() {
     // cd ./output && elm-package install --yes && cd ..
     return logAs('install Elm packages')
-        then(execInPromise('elm-package', [ 'install', '--yes' ]));
+        then(() => execInPromise('elm-package', [ 'install', '--yes' ]));
 }
 
 function startServer() {
+    console.log(`${state.ielmModulePath}/${serverScript}`);
     // node ./src/server/server.js
     return logAs('start server at http://localhost:3000')
-        .then(execInPromise('node', [ `${state.ielmModulePath}/${serverScript}` ]));
+        .then(() => execInPromise('node', [ `${state.ielmModulePath}/${serverScript}` ]));
 }
 
 function startClient() {
     // ./node_modules/.bin/node-simplehttpserver . 8080
     return logAs('start client at http://localhost:8080')
-        .then(execInPromise(simpleHttpServerBin, [ '.', simpleHttpServerPort ]));
+        .then(() => execInPromise(simpleHttpServerBin, [ '.', simpleHttpServerPort ]));
 }
 
 function startDevClient() {
     // ./node_modules/.bin/webpack-dev-server
     return logAs('start development client at http://localhost:8080.')
-        .then(execInPromise(webpackDevServerBin));
+        .then(() => execInPromise(webpackDevServerBin));
 }
 
 function buildIfNotExists() {
@@ -228,6 +247,7 @@ function chdirInPromise(path) {
     return new Promise((resolve, reject) => {
         try {
             //console.log(`:: change directory to '${path}'.`);
+            //console.log(process.cwd());
             process.chdir(path);
             resolve();
         } catch(e) {
@@ -282,7 +302,8 @@ if (state.runLocally || state.ielmUserPath) {
     runCommand(state.commandToRun);
 } else {
     modulePath.resolveOne('ielm').then((ielmModulePath) => {
-        state.ielmModulePath = ielmModulePath;
+        state.ielmModulePath =
+            ielmModulePath.startsWith('/') ? ielmModulePath : `${process.cwd()}/${ielmModulePath}`;
         if (!ielmModulePath) {
             return Promise.reject('iElm module path was not found. Ensure iElm is installed (globally or locally, no matter) or provide custom path with `path=` argument');
         }
