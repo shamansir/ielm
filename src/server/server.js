@@ -75,7 +75,7 @@ const requestHandler = (request, response) => {
         const prevModuleName = `Screen${screenId}_v${prevVersion}`;
         const moduleName = `Screen${screenId}_v${version}`;
 
-        process.chdir(workDir);
+        process.chdir(elmReplConfig.workDir);
 
         if (screenContent) {
           revlDocument.append(screenId, screenContent);

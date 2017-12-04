@@ -172,9 +172,11 @@ function copyIElmStaticFiles() {
     // cp ./index.html ./output
     return logAs('copy ielm.js & ielm.html')
         .then(() => new Promise((resolve, reject) => {
-            if (fs.existsSync('./ielm.js') && fs.existsSync('./index.html')) {
-                copy('./ielm.js', iElmJsDest, { overwrite: true })
-                    .then(() => copy('./index.html', iElmHtmlDest, { overwrite: true }))
+            const iElmJsSrc = `${state.ielmModulePath}/ielm.js`;
+            const iElmHtmlSrc = `${state.ielmModulePath}/index.html`;
+            if (fs.existsSync(iElmJsSrc) && fs.existsSync(iElmHtmlSrc)) {
+                copy(iElmJsSrc, iElmJsDest, { overwrite: true })
+                    .then(() => copy(iElmHtmlSrc, iElmHtmlDest, { overwrite: true }))
                     .then(resolve);
             } else {
                 resolve();
