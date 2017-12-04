@@ -223,7 +223,7 @@ function startServer() {
     // node ./src/server/server.js
     return logAs('start server at http://localhost:3000')
         .then(() => execInPromise('node',
-            [ `${state.ielmModulePath}/${serverScript}`, `path=${outputDir}` ]));
+            [ `${state.ielmModulePath}/${serverScript}`, `--path=${outputDir}` ]));
 }
 
 function startClient() {
