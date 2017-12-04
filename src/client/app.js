@@ -113,7 +113,7 @@ class App {
           const version = screenJson.version;
           const moduleName = `Screen${screenId}_v${version}`;
           return new Promise((resolve, reject) => {
-            importScript(`./output/${moduleName}.js`, () => {
+            importScript(`./${moduleName}.js`, () => {
               const Screen = Elm[moduleName];
               previews[screenId].update(screenJson, Screen);
               tabs[screenId].informCompiled();

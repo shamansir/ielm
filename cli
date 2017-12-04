@@ -58,6 +58,8 @@ const elmPackageSource = `${serverDir}/elm-package.sample.json`;
 const elmPackageDest = `${outputDir}/elm-package.json`;
 const componentsDest = `${outputDir}/Component`;
 const elmStuffDest = `${outputDir}/elm-stuff`;
+const iElmJsDest = `${outputDir}/ielm.js`;
+const iElmHtmlDest = `${outputDir}/index.html`;
 
 function build() {
     // webpack
@@ -73,14 +75,14 @@ function run() {
         .then(createOutputDir)
         .then(copyComponents)
         .then(copyElmPackage)
+        .then(copyIElmStaticFiles)
         .then(goBackToOriginalDir)
         .then(copyElmStuff)
+        .then(() => chdirInPromise(state.ielmModulePath))
+        .then(() => { startServer(); return null; })
         .then(() => chdirInPromise(outputDir))
         .then(installPackages)
-        .then(() => chdirInPromise(state.ielmModulePath))
-        .then(() => {
-            return Promise.all([ startServer(), startClient() ]);
-        })
+        .then(() => startClient())
         .catch(reportError);
 }
 
@@ -165,6 +167,21 @@ function copyElmStuff() {
         }));
 }
 
+function copyIElmStaticFiles() {
+    // cp ./ielm.js ./output
+    // cp ./index.html ./output
+    return logAs('copy ielm.js & ielm.html')
+        .then(() => new Promise((resolve, reject) => {
+            if (fs.existsSync('./ielm.js') && fs.existsSync('./ielm.html')) {
+                copy('./ielm.js', iElmJsDest, { overwrite: true })
+                    .then(() => copy('./index.html', iElmHtmlDest, { overwrite: true }))
+                    .then(resolve);
+            } else {
+                resolve();
+            }
+        }));
+}
+
 function copyElmPackage() {
     // cp ./src/server/elm-package.sample.json ./output/elm-package.json
     return logAs('copy elm-package.json').then(new Promise((resolve, reject) => {
@@ -199,7 +216,6 @@ function installPackages() {
 }
 
 function startServer() {
-    console.log(`${state.ielmModulePath}/${serverScript}`);
     // node ./src/server/server.js
     return logAs('start server at http://localhost:3000')
         .then(() => execInPromise('node', [ `${state.ielmModulePath}/${serverScript}` ]));

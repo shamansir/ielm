@@ -8,6 +8,13 @@ const port = 3000;
 const fs = require('fs');
 const cp = require('child_process');
 
+const pathArgument = process.argv.find((arg) => {
+  if (arg.startsWith('--path=')) return arg;
+});
+const workDir = pathArgument ? pathArgument.substring(7) : './output';
+
+console.log('server working directory: ', workDir);
+
 // REVL means Read-Evaluate-Visualize-Loop
 const RevlDocument = require('./document.js');
 const revlDocument = new RevlDocument();
@@ -22,7 +29,7 @@ const adaptConfig = (bodyJson) => {
     user: bodyJson.user || "user",
     package: bodyJson.package || "project",
     packageVer: bodyJson.packageVer || "1.0.0",
-    workDir: bodyJson.workDir || "./output"
+    workDir: bodyJson.workDir || workDir
   }
 }
 
@@ -63,6 +70,8 @@ const requestHandler = (request, response) => {
         const prevModuleName = `Screen${screenId}_v${prevVersion}`;
         const moduleName = `Screen${screenId}_v${version}`;
 
+        process.chdir(elmReplConfig.workDir);
+
         if (screenContent) {
           revlDocument.append(screenId, screenContent);
           compile(
@@ -71,7 +80,6 @@ const requestHandler = (request, response) => {
             'Prelude'
           ).then(function(preludeJson) {
             const cellCount = revlDocument.getCellCount(screenId);
-            process.chdir(elmReplConfig.workDir);
 
             const prevScreenElmFileName = `./${prevModuleName}.elm`;
             const prevScreenJsFileName = `./${prevModuleName}.js`;
@@ -88,7 +96,7 @@ const requestHandler = (request, response) => {
               revlDocument.buildScreenFor(screenId, moduleName, preludeJson.types)
             );
             cp.execSync('elm-make --yes ' + screenElmFileName + ' --output ' + screenJsFileName,
-                { cwd: process.cwd() });
+                { cwd: workDir });
             return {
               'version': version,
               'cellCount': cellCount
