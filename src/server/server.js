@@ -11,7 +11,7 @@ const cp = require('child_process');
 const pathArgument = process.argv.find((arg) => {
   if (arg.startsWith('--path=')) return arg;
 });
-const workDir = pathArgument ? pathArgument.substring(7) : './output';
+const workDir = pathArgument ? pathArgument.substring(7) : process.cwd() + '/output';
 
 console.log('server working directory: ', workDir);
 
@@ -52,6 +52,11 @@ const requestHandler = (request, response) => {
 
     if (request.url == '/refresh') {
       revlDocument.refresh();
+      response.end();
+    }
+
+    if (request.url == '/workdir') {
+      response.end(JSON.stringify({ workDir: workDir }))
     }
 
     if (request.url == '/compile') {
@@ -70,7 +75,7 @@ const requestHandler = (request, response) => {
         const prevModuleName = `Screen${screenId}_v${prevVersion}`;
         const moduleName = `Screen${screenId}_v${version}`;
 
-        process.chdir(elmReplConfig.workDir);
+        process.chdir(workDir);
 
         if (screenContent) {
           revlDocument.append(screenId, screenContent);
