@@ -12,7 +12,7 @@
     "codemirror": "^5.32.0",
     "css-loader": "^0.28.7",
     "exit-hook": "^1.1.1",
-    "node-elm-repl": "^3.5.0",
+    "node-elm-repl": "^4.0.0",
     "node-simplehttpserver": "^0.2.7",
     "npm-module-path": "^2.0.2",
     "npm-which": "^3.0.1",
