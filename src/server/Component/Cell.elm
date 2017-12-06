@@ -48,7 +48,7 @@ renderBasic : (a -> Html x) -> T.TypeAtom -> a -> Html Action
 renderBasic valueRenderer atom value =
     div [ class "cell" ]
         [ [ T.render atom ] |> div [ class "cell_type" ]
-        , [ valueRenderer value |> skipInnerActions ]
+        , [ valueRenderer value |> Html.map (always NoOp) ]
           |> div [ class "cell_value" ]
         ]
 
@@ -64,14 +64,14 @@ renderEntityAt position atom entity =
     (\_ -> entity) |> renderBasic (ThreeDViewer.withEntityAt position) atom
 
 
-renderControllable : (Inputs -> a -> Html x) -> Inputs -> T.TypeAtom -> a -> Html Action
+renderControllable : (Inputs -> a -> Html Action) -> Inputs -> T.TypeAtom -> a -> Html Action
 renderControllable valueRenderer inputs atom value =
     div [ class "cell" ]
         [ [ T.render atom ] |> div [ class "cell_type" ]
         , (Array.indexedMap renderInput inputs)
           |> Array.toList
           |> div [ class "cell_inputs" ]
-        , [ valueRenderer inputs value |> skipInnerActions ]
+        , [ valueRenderer inputs value ]
           |> div [ class "cell_value" ]
         ]
 
@@ -137,8 +137,3 @@ renderError : String -> Html Action
 renderError errorText =
     div [ class "cell_error" ]
         [ text errorText ]
-
-
-skipInnerActions : Html a -> Html Action
-skipInnerActions =
-    Html.map (\_ -> NoOp)
