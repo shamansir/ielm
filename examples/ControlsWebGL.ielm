@@ -92,3 +92,6 @@ fragmentShader =
     |]
 
 view
+
+
+(\n a -> n * a * 10 |> view)

@@ -26,3 +26,6 @@ view 0
 svg [ ]
     [ Svg.path [ d "M 25,100 C 25,150 75,150 75,100 S 100,25 150,75", stroke "#023963", fill "transparent", strokeWidth "5", transform "rotate(-30)" ] []
     ]
+
+
+(\f -> view (f * 1000))

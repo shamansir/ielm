@@ -52,6 +52,7 @@ update action model =
                 Just curInputs ->
                     { model | inputs = Just (curInputs |> Array.set inputId newValue) } ! []
                 Nothing -> model ! []
+        Cell.NoOp -> model ! []
 
 
 withAdaptedPosition : Mouse.Position -> Model -> Model

@@ -28,7 +28,7 @@
   },
   "scripts": {
     "build": "node ./cli build",
-    "start": "node ./cli run",
+    "start": "node ./cli",
     "clean-start": "node ./cli clean-run",
     "dev-start": "node ./cli dev-run local",
     "clean-dev-start": "node ./cli clean-dev-run local",

@@ -41,13 +41,15 @@ type Action
     -- | NewFrame Time
     | MouseMove Mouse.Position
     | SetRefPosition Mouse.Position
+    | NoOp
 
 
-renderBasic : (a -> Html Action) -> T.TypeAtom -> a -> Html Action
+renderBasic : (a -> Html x) -> T.TypeAtom -> a -> Html Action
 renderBasic valueRenderer atom value =
     div [ class "cell" ]
         [ [ T.render atom ] |> div [ class "cell_type" ]
-        , [ valueRenderer value ] |> div [ class "cell_value" ]
+        , [ valueRenderer value |> skipInnerActions ]
+          |> div [ class "cell_value" ]
         ]
 
 
@@ -62,14 +64,14 @@ renderEntityAt position atom entity =
     (\_ -> entity) |> renderBasic (ThreeDViewer.withEntityAt position) atom
 
 
-renderControllable : (Inputs -> a -> Html Action) -> Inputs -> T.TypeAtom -> a -> Html Action
+renderControllable : (Inputs -> a -> Html x) -> Inputs -> T.TypeAtom -> a -> Html Action
 renderControllable valueRenderer inputs atom value =
     div [ class "cell" ]
         [ [ T.render atom ] |> div [ class "cell_type" ]
         , (Array.indexedMap renderInput inputs)
           |> Array.toList
           |> div [ class "cell_inputs" ]
-        , [ valueRenderer inputs value ]
+        , [ valueRenderer inputs value |> skipInnerActions ]
           |> div [ class "cell_value" ]
         ]
 
@@ -136,8 +138,7 @@ renderError errorText =
     div [ class "cell_error" ]
         [ text errorText ]
 
--- view : Model -> Html Action
--- view inputs =
---     renderWithInput
---         inputs
---         useInputs
+
+skipInnerActions : Html a -> Html Action
+skipInnerActions =
+    Html.map (\_ -> NoOp)
