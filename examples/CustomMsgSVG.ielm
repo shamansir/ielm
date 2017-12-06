@@ -76,3 +76,6 @@ view model =
 
 
 (\f -> view (f * 1000) |> Html.map (\_ -> NoOp))
+
+
+view

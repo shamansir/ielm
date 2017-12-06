@@ -11,10 +11,8 @@ function varCall(varName, typeDef, component) {
         const inputDefaults = component.payload.inputDefaults;
         const inputVars = Array(inputs.length).fill().map((_, i) => `v${i}`).join(' ');
         const inputMatch = `[ ${ inputs.map((input, i) => `Cell.${input} v${i}`).join(', ') } ]`;
-        // TODO: `${inputVars} -> ${varName} ${inputVars}` combination looks not very beautiful
         return `t_${varName} inputs =
-    (\\${inputVars} -> ${varName} ${inputVars} |> Html.map (always Cell.NoOp))
-    |> Cell.renderControllable
+    ${varName} |> Cell.renderControllable
         (\\inputs v ->
             case (Array.toList inputs) of
                 ${inputMatch} -> (v ${inputVars}) |> (

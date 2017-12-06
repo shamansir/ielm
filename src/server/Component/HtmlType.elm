@@ -3,5 +3,7 @@ module Component.HtmlType exposing (render)
 import Html exposing (..)
 import Html.Attributes exposing (class)
 
-render : Html a -> Html a
-render html = div [ class "comp_html" ] [ html ]
+import Component.Cell as Cell
+
+render : Html a -> Html Cell.Action
+render html = div [ class "comp_html" ] [ html ] |> Html.map (always Cell.NoOp)
