@@ -49,11 +49,11 @@ const componentsDir = `${serverDir}/Component`;
 const serverScript = `${serverDir}/server.js`;
 const simpleHttpServerBin = state.runLocally
     ? `${npmBinLocalDir}/node-simplehttpserver`
-    : which.sync('node-simplehttpserver');
+    : getModulePath('node-simplehttpserver');
 const simpleHttpServerPort = 8080;
 const webpackDevServerBin = state.runLocally
     ? `${npmBinLocalDir}/webpack-dev-server`
-    : which.sync('webpack-dev-server');
+    : getModulePath('webpack-dev-server');
 const elmPackageSource = `${serverDir}/elm-package.sample.json`;
 const elmPackageDest = `${outputDir}/elm-package.json`;
 const componentsDest = `${outputDir}/Component`;
@@ -299,6 +299,14 @@ function logAs(string) {
 
 function reportError(err) {
     console.error(`xx Error: ${err}`);
+}
+
+function getModulePath(moduleName) {
+    try {
+        return which.sync(moduleName);
+    } catch(e) {
+        return moduleName;
+    }
 }
 
 function runCommand(commandToRun) {

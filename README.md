@@ -1,10 +1,12 @@
 # I, Elm.
 
-[IElm — In action](https://vimeo.com/242822314), video @ vimeo.
+[iElm — In action](https://vimeo.com/242822314), video @ vimeo.
 
 ## First run
 
 Install Elm globally using `npm install -g elm`.
+
+Then istall [iElm](http://npmjs.com/package/ielm) and [`node-simplehttpserve`](https://www.npmjs.com/package/node-simplehttpserver): `npm install -g ielm node-simplehttpserver`;
 
 Run `ielm` and then open http://localhost:8080 in your browser.
 
