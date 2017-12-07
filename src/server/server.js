@@ -8,6 +8,10 @@ const port = 3000;
 const fs = require('fs');
 const cp = require('child_process');
 
+const generateHash = require('random-hash').generateHash;
+
+var charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_n';
+
 const pathArgument = process.argv.find((arg) => {
   if (arg.startsWith('--path=')) return arg;
 });
@@ -34,6 +38,7 @@ const adaptConfig = (bodyJson) => {
 }
 
 const versions = []; // Screen ID to version
+const hashes = []; // Screen ID to hash
 
 const requestHandler = (request, response) => {
 
@@ -70,10 +75,12 @@ const requestHandler = (request, response) => {
         const initialDir = process.cwd();
 
         const prevVersion = versions[screenId] || 0;
+        const prevHash = hashes[screenId] || 'foo';
         const version = prevVersion + 1;
+        const hash = generateHash({ length: 8, charset: charset });
 
-        const prevModuleName = `Screen${screenId}_v${prevVersion}`;
-        const moduleName = `Screen${screenId}_v${version}`;
+        const prevModuleName = `Screen${screenId}_v${prevVersion}_${prevHash}`;
+        const moduleName = `Screen${screenId}_v${version}_${hash}`;
 
         process.chdir(elmReplConfig.workDir);
 
@@ -104,6 +111,7 @@ const requestHandler = (request, response) => {
                 { cwd: workDir });
             return {
               'version': version,
+              'hash': hash,
               'cellCount': cellCount
             };
           }).then((viewerInfo) => {
@@ -112,7 +120,8 @@ const requestHandler = (request, response) => {
             response.end(JSON.stringify({ error: err.message }));
           }).then(() => { // a.k.a. finally
             process.chdir(initialDir);
-            versions[screenId] = version; // FIXME: do it only if everything was successful
+            versions[screenId] = version;
+            hashes[screenId] = hash;
           });
         } else {
           response.end(JSON.stringify({ error: "Empty Body" }));
