@@ -3,6 +3,7 @@
 const userDirectory = process.cwd();
 
 const fs = require('fs');
+const path = require('path');
 const cpp = require('child-process-promise');
 const copy = require('recursive-copy');
 const rimraf = require('rimraf');
@@ -190,6 +191,11 @@ function copyElmPackage() {
         const sample = require(`./${elmPackageSource}`);
 
         if (!sample['source-directories']) sample['source-directories'] = [];
+
+        sample['source-directories'] = sample['source-directories'].map((relPath) => {
+            return path.resolve(relPath);
+        });
+        sample['source-directories'].push('.');
         sample['source-directories'].push(userDirectory);
 
         let sourceDependencies = sample.dependencies;
