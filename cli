@@ -3,13 +3,16 @@
 const userDirectory = process.cwd();
 
 const fs = require('fs');
-const path = require('path');
 const cpp = require('child-process-promise');
 const copy = require('recursive-copy');
 const rimraf = require('rimraf');
+const tmp = require('tmp');
+
+const path = require('path');
 const modulePath = require('npm-module-path');
 const which = require('npm-which')(userDirectory);
-const tmp = require('tmp');
+
+const unique = require('array-unique').immutable;
 
 const state = {
     inModuleDir : false,
@@ -197,6 +200,8 @@ function copyElmPackage() {
         });
         sample['source-directories'].push('.');
         sample['source-directories'].push(userDirectory);
+
+        sample['source-directories'] = unique(sample['source-directories']);
 
         let sourceDependencies = sample.dependencies;
         let userDependencies = {};
